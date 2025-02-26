@@ -1,9 +1,9 @@
 // Importing modules and functions
-import { renderMeta } from "../templates/meta.js";
-import { renderHeader } from "../templates/header.js";
-import { renderLinks } from "../templates/links.js";
-import { renderFooter } from "../templates/footer.js";
-import { renderSocialIcons } from "../templates/social.js";
+import { renderMeta } from "/templates/meta.js";
+import { renderHeader } from "/templates/header.js";
+import { renderLinks } from "/templates/links.js";
+import { renderFooter } from "/templates/footer.js";
+import { renderSocialIcons } from "/templates/social.js";
 
 const head = document.getElementsByTagName("head")[0];
 head.appendChild(renderMeta);
