@@ -1,5 +1,5 @@
-export const metaTitle = "Glitch in Bio!";
-export const metaDescription = "My meta description.";
+export const metaTitle = "Mitchell Jae";
+export const metaDescription = "Links in bio";
 export const name = "Mitchell Jae";
 export const theme = "glitch";
 export const avatarImage = "/img/pfp.png";
