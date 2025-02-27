@@ -1,6 +1,6 @@
 import { html } from "https://unpkg.com/lighterhtml?module";
 import settings from "/settings.json";
-import { SVGs } from "./social-svgs";
+import { SVGs } from "./social-svgs.js";
 
 function renderSocial(platform) {
   // Check that this platform exists
