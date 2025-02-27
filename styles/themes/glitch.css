@@ -31,7 +31,7 @@ Select your chosen CSS by adding the theme name (e.g. glitch) in settings.json
   --theme-color-title: #FFFFFF;
   --font-family: "Inter";
   --font-family-header: "HK Grotesk";
-  --font-family-list: Menlo, Consolas, Monaco, "Lucida Console", monospace;
+  --font-family-list: "Inter", Menlo, Consolas, Monaco, "Lucida Console", monospace;
 }
 body {
   background: fixed linear-gradient(0deg, #D7F5EF, #9480FF);
