@@ -1,4 +1,5 @@
 // Importing modules and functions
+import { html, render } from "lighterhtml";
 import { renderMeta } from "/templates/meta.js";
 import { renderHeader } from "/templates/header.js";
 import { renderLinks } from "/templates/links.js";
