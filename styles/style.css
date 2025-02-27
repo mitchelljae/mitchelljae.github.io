@@ -197,7 +197,7 @@ ul.link-list {
 }
 ul.link-list li {
   font-family: var(--font-family-list);
-  font-weight: 100;
+  font-weight: 400;
   list-style: none;
   clear: both;
   width: 100%;
