@@ -1,5 +1,5 @@
 import { html } from "https://unpkg.com/lighterhtml?module";
-import settings from "../settings.json";
+import settings from "/settings.json?import";
 
 export const renderMeta = html.node`
   <title>${settings.metaTitle}</title>
