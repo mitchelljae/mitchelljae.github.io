@@ -1,4 +1,4 @@
-import { links } from "/settings.json?import";
+import { links } from "/settings.js?import";
 import { html } from "https://unpkg.com/lighterhtml?module";
 
 function renderLink(link) {

@@ -1,5 +1,5 @@
 import { html } from "https://unpkg.com/lighterhtml?module";
-import settings from "/settings.json?import";
+import settings from "/settings.js?import";
 
 export const renderFooter = html.node`<footer class="footer">
   <div class="tagline">
