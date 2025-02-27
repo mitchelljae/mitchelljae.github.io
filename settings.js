@@ -2,7 +2,7 @@ export const metaTitle = "Glitch in Bio!";
 export const metaDescription = "My meta description.";
 export const name = "Glitch in Bio";
 export const theme = "glitch";
-export const avatarImage = "https://cdn.glitch.com/560ed5ed-9d00-433a-9ff9-7750d79d13da%2FGlitch_TeamAvatar.png?v=1624643105812";
+export const avatarImage = "/img/pfp.png";
 export const links = [
   {
     url: "https://glitch.new/links",
