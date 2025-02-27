@@ -22,10 +22,10 @@ export const links = [
   }
 ];
 export const social = {
-  glitch: "https://glitch.com/",
+  glitch: "",
   arena: "",
-  bandcamp: "",
-  bluesky: "https://bsky.app/profile/glitch.com",
+  bandcamp: "https://bandcamp.com/mitchelljae",
+  bluesky: "https://bsky.app/profile/mitchelljae",
   cohost: "",
   dev: "https://dev.to/glitch",
   facebook: "",
@@ -36,7 +36,7 @@ export const social = {
   keybase: "",
   kofi: "",
   letterboxd: "",
-  linkedin: "https://www.linkedin.com/company/fog-creek-software",
+  linkedin: "",
   mastodon: "https://mastodon.social/@glitchdotcom",
   medium: "",
   onlyfans: "",
@@ -50,10 +50,10 @@ export const social = {
   stackoverflow: "",
   substack: "",
   twitter: "https://twitter.com/glitch",
-  twitch: "",
+  twitch: "https://twitch.tv/mitchelljae",
   tiktok: "",
   tumblr: "",
-  youtube: "https://www.youtube.com/c/GlitchDotCom",
+  youtube: "https://www.youtube.com/mitchelljae",
   email: "support@glitch.com"
 };
 export default {
