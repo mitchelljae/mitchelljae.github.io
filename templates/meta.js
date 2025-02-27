@@ -1,4 +1,4 @@
-import { html } from "lighterhtml";
+import { html } from "https://unpkg.com/lighterhtml?module";
 import settings from "/settings.json";
 
 export const renderMeta = html.node`
