@@ -1,5 +1,5 @@
 import { html } from "https://unpkg.com/lighterhtml?module";
-import settings from "/settings.json";
+import settings from "../settings.json";
 
 export const renderHeader = html.node`<div>
   <div class='avatar-container'>
