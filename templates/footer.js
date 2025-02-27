@@ -3,7 +3,7 @@ import settings from "/settings.json";
 
 export const renderFooter = html.node`<footer class="footer">
   <div class="tagline">
-    <b>Glitch in Bio</b><br />
+    <b>Glitch in Bioooooo</b><br />
     Your links, your way.
   </div>
   <a
