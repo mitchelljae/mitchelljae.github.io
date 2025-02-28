@@ -22,6 +22,13 @@ Select your chosen CSS by adding the theme name (e.g. glitch) in settings.json
   src: url("/styles/fonts/Inter Regular 400.otf")
     format("opentype");
 }
+@font-face {
+  font-family: Brachial;
+  src: url("/styles/fonts/Brachial_Variable.ttf")
+    format("truetype");
+}
+
+
 
 :root {
   --color-bg: #9480FF;
