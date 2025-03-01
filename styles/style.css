@@ -65,6 +65,7 @@ body {
   max-width: 550px;
   margin: 0 auto;
   background-color:#bb0000;
+  padding:0 10px;
 }
 
 /* The footer and our remix on glitch button */
