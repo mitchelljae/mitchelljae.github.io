@@ -69,6 +69,11 @@ ul.link-list li a img {
 .social-profile-icon path {
   fill: var(--color-bg);
 }
+.social-profile-icon path:hover {
+  fill: #ffffff;
+}
+
+
 h1 {
   color: var(--theme-color-title);
 }
