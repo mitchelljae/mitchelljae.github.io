@@ -98,6 +98,11 @@ body {
   text-align: center;
 }
 
+.footer hr::before {
+  height: 1px;
+  width: 100%;
+}
+
 
 .btn--remix {
   font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
