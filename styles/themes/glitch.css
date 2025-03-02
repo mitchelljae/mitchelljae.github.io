@@ -44,6 +44,10 @@ body {
   background: fixed linear-gradient(0deg, #262626, #050505);
 }
 
+.hr-footer {
+  font-family: var(--font-family-header);
+}
+
 ul.link-list li a {
   border-radius: 3px;
   background: rgba(193,202,242,0.3);
