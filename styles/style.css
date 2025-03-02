@@ -109,6 +109,7 @@ body {
 }
 
 .footer hr::after {
+  color: #ffffff;
   content: attr(data-content);
 }
 
