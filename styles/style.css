@@ -109,6 +109,7 @@ body {
 }
 
 .footer hr::after {
+  background-color:#bb0000;
   color: #ffffff;
   content: attr(data-content);
   line-height: 1.5em;
