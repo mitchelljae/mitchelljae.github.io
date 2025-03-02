@@ -252,7 +252,6 @@ ul.link-list li a {
 ul.link-list li a:link,
 ul.link-list li a:visited {
   text-align: center;
-  border: 2px solid var(--color-primary);
   padding: 1.5rem;
   position: relative;
 }
