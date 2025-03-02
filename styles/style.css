@@ -89,9 +89,11 @@ body {
 }
 
 .footer hr {
+  border: 0;
   font-size: 14px;
   height: 1.5em;
   line-height: 1em;
+  position: relative;
 }
 
 
