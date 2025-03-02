@@ -99,7 +99,12 @@ body {
 }
 
 .footer hr::before {
+  background: linear-gradient(to right, transparent, white, transparent);
+  content: "";
   height: 1px;
+  left: 0;
+  position: absolute;
+  top: 50%;
   width: 100%;
 }
 
