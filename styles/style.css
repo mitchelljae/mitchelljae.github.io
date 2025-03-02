@@ -87,6 +87,7 @@ body {
   background: var(--color-primary);
 }
 .footer .tagline {
+  color: #ffffff;
   padding: 0.25rem 1rem 1rem;
   text-align: left;
   white-space: nowrap;
