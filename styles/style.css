@@ -112,6 +112,7 @@ body {
   color: #ffffff;
   content: attr(data-content);
   line-height: 1.5em;
+  padding: 0 7px;
 }
 
 
