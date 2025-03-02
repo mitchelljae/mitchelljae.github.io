@@ -108,6 +108,10 @@ body {
   width: 100%;
 }
 
+.footer hr::after {
+  content: attr(data-content);
+}
+
 
 .btn--remix {
   font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
