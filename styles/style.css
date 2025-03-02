@@ -77,7 +77,6 @@ body {
   padding: 1rem 0 0.75rem 0;
   width: 100%;
   flex-wrap: wrap;
-  border-top: 4px solid #fff;
 }
 .footer a:hover,
 .footer a:focus {
@@ -88,6 +87,12 @@ body {
   text-align: left;
   white-space: nowrap;
 }
+
+.footer hr {
+  height: 1.5em;
+}
+
+
 .btn--remix {
   font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
   padding: 0.8rem 1.75rem;
