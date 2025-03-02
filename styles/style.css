@@ -157,7 +157,7 @@ body {
   background-color: #d0fff1;
 }
 .tagline {
-  font-size: clamp(1rem, 0.925rem + 0.3333vw, 1.1rem);
+  font-size: clamp(1rem, 0.925rem + 0.3333vw, 1rem);
 }
 
 /* Typography */
