@@ -41,7 +41,7 @@ Select your chosen CSS by adding the theme name (e.g. glitch) in settings.json
   --font-family-list: "Inter", Menlo, Consolas, Monaco, "Lucida Console", monospace;
 }
 body {
-  background: fixed linear-gradient(0deg, #262626, #111111);
+  background: fixed linear-gradient(0deg, #2A2A2A, #1A1A1A);
 }
 
 .hr-footer {
