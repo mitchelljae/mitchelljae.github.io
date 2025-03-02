@@ -49,6 +49,7 @@ START Page structure and element resets
 }
 hr {
   box-sizing: content-box;
+  overflow: hidden;
 }
 
 /* Page structure */
