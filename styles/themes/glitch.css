@@ -58,6 +58,7 @@ ul.link-list li a:visited {
   border: 2px solid var(--color-primary);
   justify-content: space-around;
   color: #ffffff;
+  text-decoration: none;
 }
 ul.link-list li a:hover, ul.link-list li a:focus {
   border: 2px solid var(--theme-color-title);
