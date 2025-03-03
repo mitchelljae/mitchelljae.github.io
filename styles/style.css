@@ -95,7 +95,8 @@ body {
 }
 .footer .tagline a,
 .footer .tagline a:hover,
-.footer .tagline a:focus {
+.footer .tagline a:focus,
+.footer .tagline a:visited {
   color: #ffffff;
 }
 
