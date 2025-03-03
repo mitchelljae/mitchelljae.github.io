@@ -7,7 +7,7 @@ export const links = [
   {
     url: "https://twitch.tv/mitchelljae",
     header: "Twitch",
-    text: "Remix! Have your own Glitch-in-bio running in seconds.",
+    text: "Live streams, reactions, and the odd game",
     img: "https://cdn.glitch.me/efc5414a-882b-4708-af81-8461abbc1a82%2Fglitchmidblues.png?v=1634289872484",
     altText: "Glitch blue generative art"
   },
