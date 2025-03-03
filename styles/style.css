@@ -87,9 +87,11 @@ body {
 }
 .footer .tagline {
   color: #ffffff;
+  font-size: clamp(0.7rem, 0.7rem + 0.3333vw, 0.9rem);
   padding: 0.25rem 1rem 1rem;
   text-align: left;
   white-space: nowrap;
+}
 }
 .footer .tagline a,
 .footer .tagline a:hover,
@@ -155,9 +157,6 @@ body {
 .btn--remix:hover,
 .btn--remix:focus {
   background-color: #d0fff1;
-}
-.tagline {
-  font-size: clamp(0.9rem, 0.925rem + 0.3333vw, 0.9rem);
 }
 
 /* Typography */
