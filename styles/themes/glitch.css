@@ -65,6 +65,9 @@ ul.link-list li a:hover, ul.link-list li a:focus {
 ul.link-list li a img {
   display: none;
 }
+ul.link-list li a div.header {
+  font-weight: bold;
+}
 
 .social-profile-icon path {
   fill: var(--color-bg);
