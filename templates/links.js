@@ -9,8 +9,8 @@ function renderLink(link) {
     <li class=${classes}>
       <a href=${link.url}>
         ${link.img ? html`<img src=${link.img} alt=${link.altText} />` : ""}
-        <div>${link.header}</div>
-        <div>${link.text}</div>
+        <div class="header">${link.header}</div>
+        <div class="text">${link.text}</div>
       </a>
     </li>
   `;
