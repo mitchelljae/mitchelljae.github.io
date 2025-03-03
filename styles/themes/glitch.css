@@ -53,6 +53,7 @@ ul.link-list li a {
   background: #3A3A3A;
   color: #ffffff;
   text-decoration: none;
+  flex-direction: column;
 }
 ul.link-list li a:link,
 ul.link-list li a:visited {
