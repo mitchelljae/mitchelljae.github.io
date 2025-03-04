@@ -64,13 +64,13 @@ body {
   margin: 3rem 0.5rem;
 }
 .content {
-  display: flex;
+  border-radius:14px;display: flex;
   flex-direction: column;
   max-width: 650px;
   margin: 0 auto;
   background-color:#161616;
   padding:30px 50px;
-  border-radius:14px;
+  width: 100%;
 }
 
 /* The footer and our remix on glitch button */
