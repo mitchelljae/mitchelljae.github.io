@@ -71,7 +71,7 @@ ul.link-list li a div.header {
   font-weight: bold;
 }
 ul.link-list li a div.text {
-  font-size:clamp(0.7rem, 0.325rem + 1.6667vw, 0.9rem);
+  font-size:clamp(0.7rem, 0.325rem + 1.6667vw, 0.85rem);
 }
 
 .social-profile-icon path {
