@@ -246,7 +246,7 @@ ul.link-list li {
   font-size: clamp(0.8rem, 0.325rem + 1.6667vw, 1.2rem);
 }
 ul.link-list li a {
-  min-height: 5.5em;
+  min-height: 5em;
   min-width: 100%;
   display: flex;
   align-content: center;
