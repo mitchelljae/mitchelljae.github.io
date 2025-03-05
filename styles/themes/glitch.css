@@ -70,7 +70,7 @@ ul.link-list li a:hover, ul.link-list li a:focus {
 ul.link-list li a img {
   display: none;
 }
-ul.link-list li a div.header {
+ul.link-list li a div.title {
   font-size: clamp(0.85rem, 0.325rem + 1.6667vw, 1.2rem);
   font-weight: bold;
 }
