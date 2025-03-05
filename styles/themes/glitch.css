@@ -53,9 +53,7 @@ body {
 }
 
 ul.link-list li:hover {
-  width: 100%;
-  min-width: 100%;
-  margin: 1rem auto;
+  transform: scale(1.1);
 }
 ul.link-list li a {
   border-radius: 6px;
