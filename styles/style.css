@@ -74,6 +74,7 @@ body {
   max-width: 650px;
   margin: 0 auto;
   background-color:#161616;
+  background-image: url("/img/grunge-head-bg.png");
   padding:30px 50px;
   width: 100%;
 }
