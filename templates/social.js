@@ -71,5 +71,6 @@ export const renderSocialIcons = html.node`
         return html.node`${renderSocial(platform)}`;
       })}
       ${renderEmail()}
-    </div></div>
+    </div>
+  </div>
   `;
