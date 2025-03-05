@@ -60,7 +60,12 @@ body {
 .wrapper {
   min-height: var(--wrapper-height);
   place-items: center;
-  margin: 3rem 0.5rem;
+  margin: 3rem 1rem;
+}
+@media (max-width:480px) {
+  .wrapper {
+    margin: 2rem 0.5rem;
+  }
 }
 .content {
   border-radius:14px;
