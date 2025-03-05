@@ -63,7 +63,8 @@ body {
   margin: 3rem 0.5rem;
 }
 .content {
-  border-radius:14px;display: flex;
+  border-radius:14px;
+  display: flex;
   flex-direction: column;
   max-width: 650px;
   margin: 0 auto;
@@ -242,7 +243,7 @@ ul.link-list li {
   min-width: 100%;
   text-align: center;
   margin: 1rem auto;
-  font-size: clamp(0.7rem, 0.325rem + 1.6667vw, 1.2rem);
+  font-size: clamp(0.8rem, 0.325rem + 1.6667vw, 1.2rem);
 }
 ul.link-list li a {
   min-height: 5.5em;
