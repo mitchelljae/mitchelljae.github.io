@@ -44,10 +44,6 @@ body {
   background: fixed linear-gradient(0deg, #2A2A2A, #1A1A1A);
 }
 
-.header {
-  background-color: #ff0000;
-}
-
 .hr-footer {
   font-family: var(--font-family-header);
 }
