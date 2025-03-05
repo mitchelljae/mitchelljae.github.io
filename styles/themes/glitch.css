@@ -67,6 +67,7 @@ ul.link-list li a img {
   display: none;
 }
 ul.link-list li a div.header {
+  font-size: clamp(0.8rem, 0.325rem + 1.6667vw, 1.2rem);
   font-weight: bold;
 }
 ul.link-list li a div.text {
