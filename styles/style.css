@@ -120,7 +120,7 @@ body {
 }
 
 .hr-footer::before {
-  background: linear-gradient(to right, transparent, white, transparent);
+  background: linear-gradient(to right, transparent, white 10% 90% , transparent);
   content: "";
   height: 2px;
   left: 0;
