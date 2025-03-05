@@ -245,7 +245,7 @@ ul.link-list li {
   margin: 1rem auto;
 }
 ul.link-list li a {
-  min-height: 4.5em;
+  min-height: 4em;
   min-width: 100%;
   display: flex;
   align-content: center;
