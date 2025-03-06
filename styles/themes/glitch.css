@@ -44,21 +44,12 @@ body {
   background: fixed linear-gradient(0deg, #2A2A2A, #1A1A1A);
 }
 
-.avatar {
-  transform: scale(1);
-  transition: transform 0.2s ease-in-out 0s;
-}
-
-.avatar:hover {
-  transform: scale(1.2);
-}
-
 .hr-footer {
   font-family: var(--font-family-header);
 }
 
 ul.link-list li:hover {
-  transform: scale(1.02);
+  transform: scale(1.03);
 }
 ul.link-list li a {
   border-radius: 6px;
