@@ -291,7 +291,7 @@ ul.link-list li a span {
   margin: 0 0.5rem 1.5rem;
 }
 .social-profile-icon {
-  width: 1.75rem;
+  width: clamp(1rem, 1.325rem + 1.6667vw, 1.75rem);
   margin-bottom: 1rem;
   display: inline-flex;
 }
