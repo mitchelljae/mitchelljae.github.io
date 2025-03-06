@@ -288,7 +288,7 @@ ul.link-list li a span {
   border-bottom: none;
   background: transparent;
   width: clamp(1rem, 1.325rem + 1.6667vw, 3rem);
-  margin: 0 0.5rem 1.5rem;
+  margin: 0 0.3rem 1.5rem;
 }
 .social-profile-icon {
   width: 1.75rem;
