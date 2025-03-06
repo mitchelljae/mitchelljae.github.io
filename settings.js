@@ -31,6 +31,7 @@ export const social = {
   bluesky: "https://bsky.app/profile/mitchelljae.bsky.social",
   cohost: "",
   dev: "",
+  discord: "https://www.discord.com",
   facebook: "",
   github: "",
   gitlab: "",
