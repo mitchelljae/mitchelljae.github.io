@@ -27,7 +27,13 @@
           </div>
 
           <ul class="link-list">
-            ${links.map(renderLink)}
+            <li class=${classes}>
+              <a href=${link.url} target="_blank">
+                <img src=${link.img} alt=${link.altText} />
+                <div class="title">${link.header}</div>
+                <div class="text">${link.text}</div>
+              </a>
+            </li>
           </ul>
 
           <hr class="hr-footer" data-content="X">
