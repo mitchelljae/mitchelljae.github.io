@@ -27,7 +27,7 @@ export const links = [
 export const social = {
   glitch: "",
   arena: "",
-  bandcamp: "https://bandcamp.com/mitchelljae",
+  bandcamp: "",
   bluesky: "https://bsky.app/profile/mitchelljae.bsky.social",
   cohost: "",
   dev: "",
