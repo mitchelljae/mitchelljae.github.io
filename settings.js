@@ -9,7 +9,7 @@ export const links = [
     header: "Twitch",
     text: "Live streams, reactions, and maybe the odd game",
     img: "https://cdn.glitch.me/efc5414a-882b-4708-af81-8461abbc1a82%2Fglitchmidblues.png?v=1634289872484",
-    altText: "Glitch blue generative art"
+    altText: "Twitch
   },
   {
     url: "https://bsky.app/profile/mitchelljae.bsky.social",
