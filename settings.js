@@ -20,7 +20,7 @@ export const links = [
   {
     url: "https://www.youtube.com/@mitchelljae",
     header: "Youtube",
-    text: "Nothing there as yet, but I need content here",
+    text: "Nothing there as yet, but I wanted a third box so here we are",
     img: "https://cdn.glitch.me/efc5414a-882b-4708-af81-8461abbc1a82%2Fglitchdarkpinks.png?v=1634289859236"
   }
 ];
