@@ -878,7 +878,17 @@ function render(COLLECTION) {
     divider.className = 'round-divider';
     divider.innerHTML = `<span>Round ${r + 1}</span><hr>`;
     grid.appendChild(divider);
-    COLLECTION.forEach((entry) => {
+
+    // Sort entries by the earliest week number in this round (nulls last)
+    const sorted = [...COLLECTION].sort((a, b) => {
+      const pickA = a.picks[r] ?? null;
+      const pickB = b.picks[r] ?? null;
+      const weekA = pickA ? Math.min(...toArray(pickA).map(p => p.week ?? Infinity)) : Infinity;
+      const weekB = pickB ? Math.min(...toArray(pickB).map(p => p.week ?? Infinity)) : Infinity;
+      return weekA - weekB;
+    });
+
+    sorted.forEach((entry) => {
       const pick = entry.picks[r] ?? null;
       if (!pick)               grid.appendChild(makeEmptyCard());
       else if (isDouble(pick)) grid.appendChild(makeSplitCard(pick, entry.person));
