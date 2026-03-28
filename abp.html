@@ -55,6 +55,92 @@
     /* ── MAIN ── */
     main { padding: 0 48px 60px; }
 
+    /* ── FEATURED (THIS WEEK'S ALBUM) ── */
+    .featured {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 48px 52px;
+    }
+    .featured-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .featured-art {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+    .featured-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .featured-art .shimmer {
+      width: 100%;
+      height: 100%;
+    }
+    .featured-artist {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+    .featured-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .featured-person {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--accent);
+      margin-bottom: 18px;
+      letter-spacing: 0.06em;
+    }
+    .featured-links {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .featured-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      transition: filter 0.15s, transform 0.15s;
+    }
+    .featured-links a:hover { filter: brightness(1.15); transform: scale(1.04); }
+    .featured-links a svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .featured-links .feat-spotify { background: #1DB954; color: #000; }
+    .featured-links .feat-apple   { background: #fc3c44; color: #fff; }
+    .featured-links-pending {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+    }
+
     /* ── ROUND GRID ── */
     .rounds-grid {
       display: grid;
@@ -468,6 +554,7 @@
   <span class="meta" id="header-meta"></span>
 </header>
 
+<div id="featured"></div>
 <main id="app"></main>
 <div class="table-section" id="table-section"></div>
 <footer id="footer">ABP · <span id="footer-year"></span> · covers via MusicBrainz / Cover Art Archive</footer>
@@ -726,6 +813,8 @@ function render(COLLECTION) {
     document.querySelectorAll(`.td-spotify[data-spotkey="${key}"]`).forEach(cell => {
       cell.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${SPOTIFY_ICON} Listen</a>`;
     });
+    // Featured block — rebuild links if both services now known
+    updateFeaturedLinks(key);
   }
 
   // ── APPLY APPLE MUSIC LINK ───────────────────────────────────
@@ -737,6 +826,32 @@ function render(COLLECTION) {
     document.querySelectorAll(`.td-apple[data-spotkey="${key}"]`).forEach(cell => {
       cell.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${APPLE_ICON} Listen</a>`;
     });
+    // Featured block
+    updateFeaturedLinks(key);
+  }
+
+  // Populate featured links once we have at least one service URL resolved
+  function updateFeaturedLinks(key) {
+    const linksEl = document.querySelector(`.featured-links[data-spotkey="${key}"]`);
+    if (!linksEl) return;
+    const spot  = getLS(spotKey(...keyToArtistTitle(key)));
+    const apple = getLS(appleKey(...keyToArtistTitle(key)));
+    // Build buttons for whichever are resolved
+    const spotUrl  = spot  && spot  !== 'NONE' ? spot  : null;
+    const appleUrl = apple && apple !== 'NONE' ? apple : null;
+    if (!spotUrl && !appleUrl) return;
+    linksEl.innerHTML = '';
+    if (spotUrl)  linksEl.innerHTML += `<a class="feat-spotify" href="${spotUrl}"  target="_blank" rel="noopener">${SPOTIFY_ICON} Spotify</a>`;
+    if (appleUrl) linksEl.innerHTML += `<a class="feat-apple"   href="${appleUrl}" target="_blank" rel="noopener">${APPLE_ICON} Apple Music</a>`;
+  }
+
+  // Reverse-lookup artist+title from a cacheKey isn't possible,
+  // so we store a map of key → {artist,title} for featured lookup use
+  const toResolve = new Map();
+  const keyMeta   = new Map();
+  function keyToArtistTitle(key) {
+    const m = keyMeta.get(key);
+    return m ? [m.artist, m.title] : ['', ''];
   }
 
   // ── SCROLL TO ROW ────────────────────────────────────────────
@@ -749,12 +864,10 @@ function render(COLLECTION) {
     row.classList.add('row-highlight');
   }
 
-  // ── IMG PAIR ─────────────────────────────────────────────────
-  const toResolve = new Map();
-
   function makeImgPair(pick) {
     const key = cacheKey(pick.artist, pick.title);
     toResolve.set(key, { artist: pick.artist, title: pick.title });
+    keyMeta.set(key, { artist: pick.artist, title: pick.title });
     const shimmer = document.createElement('div');
     shimmer.className = 'shimmer';
     const img = document.createElement('img');
@@ -867,6 +980,69 @@ function render(COLLECTION) {
   const people = COLLECTION.map(e => e.person);
   let totalPicks = 0;
   COLLECTION.forEach(e => e.picks.forEach(p => { if (p) totalPicks += toArray(p).length; }));
+
+  // ── BUILD FEATURED BLOCK ────────────────────────────────────
+  // Find the pick with the highest week number across all entries
+  let featuredPick = null, featuredPerson = null;
+  COLLECTION.forEach(entry => {
+    entry.picks.forEach(raw => {
+      if (!raw) return;
+      toArray(raw).forEach(pick => {
+        if (!featuredPick || (pick.week ?? 0) > (featuredPick.week ?? 0)) {
+          featuredPick = pick;
+          featuredPerson = entry.person;
+        }
+      });
+    });
+  });
+
+  if (featuredPick) {
+    const featKey = cacheKey(featuredPick.artist, featuredPick.title);
+    toResolve.set(featKey, { artist: featuredPick.artist, title: featuredPick.title });
+    keyMeta.set(featKey,   { artist: featuredPick.artist, title: featuredPick.title });
+
+    const featured = document.getElementById('featured');
+    featured.className = 'featured';
+
+    const label = document.createElement('div');
+    label.className = 'featured-label';
+    label.textContent = "This Week's Album";
+
+    const artWrap = document.createElement('div');
+    artWrap.className = 'featured-art';
+    const artShimmer = document.createElement('div');
+    artShimmer.className = 'shimmer';
+    const artImg = document.createElement('img');
+    artImg.alt = `${featuredPick.artist} – ${featuredPick.title}`;
+    artImg.dataset.key = featKey;
+    artImg.addEventListener('error', () => { artShimmer.style.display = 'none'; });
+    artWrap.appendChild(artShimmer);
+    artWrap.appendChild(artImg);
+
+    const artistEl = document.createElement('div');
+    artistEl.className = 'featured-artist';
+    artistEl.textContent = featuredPick.artist.toUpperCase();
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'featured-title';
+    titleEl.textContent = featuredPick.title;
+
+    const personEl = document.createElement('div');
+    personEl.className = 'featured-person';
+    personEl.textContent = `picked by ${featuredPerson}`;
+
+    const linksEl = document.createElement('div');
+    linksEl.className = 'featured-links';
+    linksEl.dataset.spotkey = featKey;
+    linksEl.innerHTML = `<span class="featured-links-pending">…</span>`;
+
+    featured.appendChild(label);
+    featured.appendChild(artWrap);
+    featured.appendChild(artistEl);
+    featured.appendChild(titleEl);
+    featured.appendChild(personEl);
+    featured.appendChild(linksEl);
+  }
 
   // ── BUILD GRID ──────────────────────────────────────────────
   const app = document.getElementById('app');
