@@ -11,31 +11,31 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0d0d0d;
-      --surface:     #141414;
-      --border:      #222;
-      --accent:      #e8ff00;
-      --muted:       #555;
-      --text:        #e8e8e8;
-      --label:       #888;
-      --gap:         4px;
-      --shimmer-a:   #1a1a1a;
-      --shimmer-b:   #272727;
-      --badge-text:  #000;
+      --bg:         #0d0d0d;
+      --surface:    #141414;
+      --border:     #222;
+      --accent:     #e8ff00;
+      --muted:      #555;
+      --text:       #e8e8e8;
+      --label:      #888;
+      --gap:        4px;
+      --shimmer-a:  #1a1a1a;
+      --shimmer-b:  #272727;
+      --badge-text: #000;
     }
 
     @media (prefers-color-scheme: light) {
       :root {
-        --bg:          #f2f0eb;
-        --surface:     #ffffff;
-        --border:      #ddd;
-        --accent:      #7a6f00;
-        --muted:       #aaa;
-        --text:        #1a1a1a;
-        --label:       #666;
-        --shimmer-a:   #e8e5df;
-        --shimmer-b:   #d8d4cc;
-        --badge-text:  #fff;
+        --bg:         #f2f0eb;
+        --surface:    #ffffff;
+        --border:     #ddd;
+        --accent:     #7a6f00;
+        --muted:      #aaa;
+        --text:       #1a1a1a;
+        --label:      #666;
+        --shimmer-a:  #e8e5df;
+        --shimmer-b:  #d8d4cc;
+        --badge-text: #fff;
       }
     }
 
@@ -50,9 +50,6 @@
     /* ── HEADER ── */
     header {
       padding: 48px 48px 28px;
-      display: flex;
-      align-items: flex-end;
-      gap: 20px;
       border-bottom: 1px solid var(--border);
       margin-bottom: 40px;
     }
@@ -70,17 +67,11 @@
       color: var(--muted);
       letter-spacing: 0.04em;
     }
-    header .meta {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--muted);
-      padding-bottom: 6px;
-    }
 
     /* ── MAIN ── */
     main { padding: 0 48px 60px; }
 
-    /* ── FEATURED (THIS WEEK'S ALBUM) ── */
+    /* ── FEATURED ── */
     .featured {
       display: flex;
       flex-direction: column;
@@ -111,10 +102,7 @@
       object-fit: cover;
       display: none;
     }
-    .featured-art .shimmer {
-      width: 100%;
-      height: 100%;
-    }
+    .featured-art .shimmer { width: 100%; height: 100%; }
     .featured-artist {
       font-family: 'DM Mono', monospace;
       font-size: 0.7rem;
@@ -173,7 +161,7 @@
       gap: var(--gap);
     }
 
-    /* ── ALBUM CARD (single) ── */
+    /* ── ALBUM CARD ── */
     .album-card {
       position: relative;
       aspect-ratio: 1 / 1;
@@ -214,28 +202,12 @@
       color: var(--accent);
       margin-bottom: 2px;
     }
-    .album-overlay .ov-title {
-      font-size: 0.68rem;
-      font-weight: 400;
-      color: #fff;
-      line-height: 1.2;
-    }
-    .album-overlay .ov-artist {
-      font-size: 0.62rem;
-      color: rgba(255,255,255,0.65);
-    }
-    .album-overlay .ov-year {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.55rem;
-      color: var(--accent);
-      margin-top: 2px;
-    }
+    .album-overlay .ov-title  { font-size: 0.68rem; font-weight: 400; color: #fff; line-height: 1.2; }
+    .album-overlay .ov-artist { font-size: 0.62rem; color: rgba(255,255,255,0.65); }
+    .album-overlay .ov-year   { font-family: 'DM Mono', monospace; font-size: 0.55rem; color: var(--accent); margin-top: 2px; }
 
-    /* empty slot */
-    .album-card--empty {
-      border-style: dashed;
-      opacity: 0.28;
-    }
+    /* ── EMPTY CARD ── */
+    .album-card--empty { border-style: dashed; opacity: 0.28; }
     .empty-slot {
       width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
@@ -244,6 +216,7 @@
       font-size: 0.8rem;
     }
 
+    /* ── IMAGE ERROR PLACEHOLDER ── */
     .album-card .placeholder {
       width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
@@ -251,10 +224,9 @@
       font-size: 1.2rem;
     }
 
-    /* ── SPLIT CARD (double submission) ──────────────────────────
-       Accent border flags it. Diagonal seam via ::after pseudo.
-       Two clip-path halves hold each cover independently.
-    ── */
+    /* ── SPLIT CARD (double submission) ──
+       Accent border flags it. Diagonal seam via ::after.
+       Two clip-path halves hold each cover independently. */
     .album-card--split {
       position: relative;
       aspect-ratio: 1 / 1;
@@ -263,8 +235,6 @@
       border: 1px solid var(--accent);
       cursor: default;
     }
-
-    /* Diagonal seam line */
     .album-card--split::after {
       content: '';
       position: absolute;
@@ -279,7 +249,6 @@
       z-index: 2;
       pointer-events: none;
     }
-
     .split-half {
       position: absolute;
       inset: 0;
@@ -288,7 +257,6 @@
     }
     .split-half--a { clip-path: polygon(0 0, 100% 0, 0 100%); }
     .split-half--b { clip-path: polygon(100% 0, 100% 100%, 0 100%); }
-
     .split-half img {
       width: 100%;
       height: 100%;
@@ -297,12 +265,8 @@
       filter: saturate(0.85);
       transition: filter 0.3s ease;
     }
-    .split-half .shimmer {
-      width: 100%;
-      height: 100%;
-    }
+    .split-half .shimmer { width: 100%; height: 100%; }
 
-    /* Full-card hover overlay for split — dims both halves, shows info */
     .split-overlay {
       position: absolute;
       inset: 0;
@@ -319,7 +283,6 @@
     }
     .album-card--split:hover .split-overlay { opacity: 1; }
     .album-card--split:hover .split-half img { filter: saturate(0.3) brightness(0.4); }
-
     .split-overlay .ov-person {
       font-family: 'DM Mono', monospace;
       font-size: 0.55rem;
@@ -335,21 +298,9 @@
       background: rgba(255,255,255,0.05);
       border-left: 2px solid var(--accent);
     }
-    .split-entry .ov-title {
-      font-size: 0.64rem;
-      font-weight: 400;
-      color: #fff;
-      line-height: 1.2;
-    }
-    .split-entry .ov-artist {
-      font-size: 0.57rem;
-      color: rgba(255,255,255,0.55);
-    }
-    .split-entry .ov-year {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.52rem;
-      color: var(--accent);
-    }
+    .split-entry .ov-title  { font-size: 0.64rem; font-weight: 400; color: #fff; line-height: 1.2; }
+    .split-entry .ov-artist { font-size: 0.57rem; color: rgba(255,255,255,0.55); }
+    .split-entry .ov-year   { font-family: 'DM Mono', monospace; font-size: 0.52rem; color: var(--accent); }
 
     /* ── SHIMMER ── */
     @keyframes shimmer {
@@ -377,13 +328,9 @@
       letter-spacing: 0.1em;
       color: var(--muted);
     }
-    .round-divider hr {
-      flex: 1;
-      border: none;
-      border-top: 1px solid var(--border);
-    }
+    .round-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
 
-    /* ── TABLE SECTION ── */
+    /* ── TABLE ── */
     .table-section { padding: 0 48px 80px; }
     .table-section h2 {
       font-family: 'Bebas Neue', sans-serif;
@@ -416,9 +363,7 @@
       border-bottom: 1px solid var(--border);
       transition: background 0.15s;
     }
-    .picks-table tbody tr:hover { background: var(--surface); }
-    .picks-table tbody tr.row-empty { opacity: 0.38; }
-    /* Double rows: accent left border */
+    .picks-table tbody tr:hover      { background: var(--surface); }
     .picks-table tbody tr.row-double { border-left: 2px solid var(--accent); }
     .picks-table td {
       padding: 8px 12px;
@@ -434,22 +379,15 @@
       border: 1px solid var(--border);
     }
     .table-thumb-shimmer { width: 44px; height: 44px; }
-    .table-thumb-empty {
-      width: 44px; height: 44px;
-      background: var(--surface);
-      border: 1px dashed var(--border);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted);
-      font-size: 0.7rem;
-    }
 
-    .td-week   { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); }
-    .td-round  { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--label); }
+    .td-week, .td-round, .td-year { font-family: 'DM Mono', monospace; font-size: 0.65rem; }
+    .td-week   { color: var(--muted); }
+    .td-round  { color: var(--label); }
+    .td-year   { color: var(--muted); font-size: 0.7rem; }
     .td-person { font-weight: 400; }
     .td-artist { color: var(--label); }
     .td-album  { font-weight: 400; }
-    .td-year   { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); }
-    .td-none   { color: var(--muted); font-style: italic; font-size: 0.75rem; }
+
     .td-double-badge {
       display: inline-block;
       font-family: 'DM Mono', monospace;
@@ -468,14 +406,20 @@
       0%   { background: color-mix(in srgb, var(--accent) 18%, transparent); }
       100% { background: transparent; }
     }
-    .picks-table tbody tr.row-highlight {
-      animation: rowflash 1.2s ease-out forwards;
-    }
+    .picks-table tbody tr.row-highlight { animation: rowflash 1.2s ease-out forwards; }
 
-    /* Clickable cards */
+    /* ── CLICKABLE CARDS ── */
     .album-card.is-linked,
     .album-card--split.is-linked { cursor: pointer; }
-    .split-half.is-linked        { cursor: pointer; }
+
+    /* ── PAGE META ── */
+    .page-meta {
+      text-align: center;
+      padding: 16px 48px 0;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+    }
 
     /* ── FOOTER ── */
     footer {
@@ -500,45 +444,35 @@
 <div id="featured"></div>
 <main id="app"></main>
 <div class="table-section" id="table-section"></div>
-<div style="text-align:center;padding:16px 48px 0;font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);" id="header-meta"></div>
+<div class="page-meta" id="header-meta"></div>
 <footer id="footer">ABP · <span id="footer-year"></span> · covers via MusicBrainz / Cover Art Archive</footer>
 
 <script>
 // ============================================================
 //  CSV PARSER
-//  Converts a CSV string into the COLLECTION structure
-//  expected by the renderer.
+//  Converts a CSV string into the COLLECTION structure.
 //
-//  CSV columns (header row required):
-//    person, round, week, title, artist, year, double, note
-//
-//  double = true means this row shares its grid cell with
-//  another row (same person + round) — renders as split card.
-//  note   = optional, ignored by renderer.
+//  Columns: person, round, week, title, artist, year, double, note
+//  double: 1/true = double submission (split card), 0/false = single
+//  note:   optional, ignored by renderer
 // ============================================================
-
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-
   const col = h => headers.indexOf(h);
   const iP = col('person'), iR = col('round'), iW = col('week'),
         iT = col('title'),  iA = col('artist'), iY = col('year'),
         iD = col('double'), iN = col('note');
 
-  // Parse every data row into a flat record
   const rows = lines.slice(1).map(line => {
-    // Handle quoted fields containing commas
     const fields = [];
     let cur = '', inQuote = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') { inQuote = !inQuote; }
+    for (const ch of line) {
+      if (ch === '"')                  { inQuote = !inQuote; }
       else if (ch === ',' && !inQuote) { fields.push(cur.trim()); cur = ''; }
-      else { cur += ch; }
+      else                             { cur += ch; }
     }
     fields.push(cur.trim());
-
     return {
       person: fields[iP] || '',
       round:  parseInt(fields[iR], 10) || 1,
@@ -551,199 +485,148 @@ function parseCSV(text) {
     };
   }).filter(r => r.person && r.title && r.artist);
 
-  // Derive person order from first appearance in CSV
-  const personOrder = [];
-  rows.forEach(r => { if (!personOrder.includes(r.person)) personOrder.push(r.person); });
+  const personOrder = [...new Set(rows.map(r => r.person))];
+  const roundCount  = Math.max(...rows.map(r => r.round));
 
-  const roundCount = Math.max(...rows.map(r => r.round));
-
-  // Build COLLECTION — one entry per person, picks array indexed by round
-  const collection = personOrder.map(person => {
+  return personOrder.map(person => {
     const picks = [];
     for (let r = 1; r <= roundCount; r++) {
-      const roundRows = rows.filter(row => row.person === person && row.round === r);
-      if (roundRows.length === 0) {
+      const rr = rows.filter(row => row.person === person && row.round === r);
+      if (!rr.length) {
         picks.push(null);
-      } else if (roundRows.length === 1 && !roundRows[0].double) {
-        const { title, artist, year, week, note } = roundRows[0];
+      } else if (rr.length === 1 && !rr[0].double) {
+        const { title, artist, year, week, note } = rr[0];
         picks.push({ title, artist, year, week, ...(note ? { note } : {}) });
       } else {
-        // Double submission — wrap in array
-        picks.push(roundRows.map(({ title, artist, year, week, note }) => ({
+        picks.push(rr.map(({ title, artist, year, week, note }) => ({
           title, artist, year, week, ...(note ? { note } : {})
         })));
       }
     }
     return { person, picks };
   });
-
-  return collection;
 }
-</script>
 
-<script>
-// ── BOOT ────────────────────────────────────────────────────
-// Show a loading state, fetch + parse the CSV, then hand off
-// to the renderer. Any error is shown in place of the page.
-
+// ── BOOT ─────────────────────────────────────────────────────
 (async function boot() {
   const app = document.getElementById('app');
-  app.innerHTML = `
-    <div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);">
-      loading albums.csv…
-    </div>`;
+  app.innerHTML = `<div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);">loading albums.csv…</div>`;
 
-  let COLLECTION;
   try {
     const res = await fetch('albums.csv?v=' + Date.now());
     if (!res.ok) throw new Error(`Could not load albums.csv (HTTP ${res.status})`);
-    COLLECTION = parseCSV(await res.text());
+    app.innerHTML = '';
+    render(parseCSV(await res.text()));
   } catch (e) {
     app.innerHTML = `
       <div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.8rem;color:#e05;">
         ✕ ${e.message}<br><br>
         <span style="color:var(--muted)">Make sure albums.csv is in the same directory as index.html.</span>
       </div>`;
-    return;
   }
-
-  app.innerHTML = '';
-  render(COLLECTION);
 })();
 </script>
 
 <script>
 function render(COLLECTION) {
-(function () {
 
   // ── HELPERS ─────────────────────────────────────────────────
-  function isDouble(pick) { return Array.isArray(pick); }
-  function toArray(pick)  { return isDouble(pick) ? pick : [pick]; }
+  const isDouble = pick => Array.isArray(pick);
+  const toArray  = pick => isDouble(pick) ? pick : [pick];
 
   const SPOTIFY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>`;
+  const APPLE_ICON   = `<svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="m10.995 0 .573.001q.241 0 .483.007c.35.01.705.03 1.051.093.352.063.68.166.999.329a3.36 3.36 0 0 1 1.47 1.468c.162.32.265.648.328 1 .063.347.084.7.093 1.051q.007.241.007.483l.001.573v5.99l-.001.573q0 .241-.008.483c-.01.35-.03.704-.092 1.05a3.5 3.5 0 0 1-.33 1 3.36 3.36 0 0 1-1.468 1.468 3.5 3.5 0 0 1-1 .33 7 7 0 0 1-1.05.092q-.241.007-.483.008l-.573.001h-5.99l-.573-.001q-.241 0-.483-.008a7 7 0 0 1-1.052-.092 3.6 3.6 0 0 1-.998-.33 3.36 3.36 0 0 1-1.47-1.468 3.6 3.6 0 0 1-.328-1 7 7 0 0 1-.093-1.05Q.002 11.81 0 11.568V5.005l.001-.573q0-.241.007-.483c.01-.35.03-.704.093-1.05a3.6 3.6 0 0 1 .329-1A3.36 3.36 0 0 1 1.9.431 3.5 3.5 0 0 1 2.896.1 7 7 0 0 1 3.95.008Q4.19.002 4.432 0h.573zm-.107 2.518-4.756.959H6.13a.66.66 0 0 0-.296.133.5.5 0 0 0-.16.31c-.004.027-.01.08-.01.16v5.952c0 .14-.012.275-.106.39-.095.115-.21.15-.347.177l-.31.063c-.393.08-.65.133-.881.223a1.4 1.4 0 0 0-.519.333 1.25 1.25 0 0 0-.332.995c.031.297.166.582.395.792.156.142.35.25.578.296.236.047.49.031.858-.043.196-.04.38-.102.555-.205a1.4 1.4 0 0 0 .438-.405 1.5 1.5 0 0 0 .233-.55c.042-.202.052-.386.052-.588V6.347c0-.276.08-.35.302-.404.024-.005 3.954-.797 4.138-.833.257-.049.378.025.378.294v3.524c0 .14-.001.28-.096.396-.094.115-.211.15-.348.178l-.31.062c-.393.08-.649.133-.88.223a1.4 1.4 0 0 0-.52.334 1.26 1.26 0 0 0-.34.994c.03.297.174.582.404.792a1.2 1.2 0 0 0 .577.294c.237.048.49.03.858-.044.197-.04.381-.098.556-.202a1.4 1.4 0 0 0 .438-.405q.173-.252.233-.549a2.7 2.7 0 0 0 .044-.589V2.865c0-.273-.143-.443-.4-.42-.04.003-.383.064-.424.073"/></svg>`;
 
-  const APPLE_ICON = `<svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="m10.995 0 .573.001q.241 0 .483.007c.35.01.705.03 1.051.093.352.063.68.166.999.329a3.36 3.36 0 0 1 1.47 1.468c.162.32.265.648.328 1 .063.347.084.7.093 1.051q.007.241.007.483l.001.573v5.99l-.001.573q0 .241-.008.483c-.01.35-.03.704-.092 1.05a3.5 3.5 0 0 1-.33 1 3.36 3.36 0 0 1-1.468 1.468 3.5 3.5 0 0 1-1 .33 7 7 0 0 1-1.05.092q-.241.007-.483.008l-.573.001h-5.99l-.573-.001q-.241 0-.483-.008a7 7 0 0 1-1.052-.092 3.6 3.6 0 0 1-.998-.33 3.36 3.36 0 0 1-1.47-1.468 3.6 3.6 0 0 1-.328-1 7 7 0 0 1-.093-1.05Q.002 11.81 0 11.568V5.005l.001-.573q0-.241.007-.483c.01-.35.03-.704.093-1.05a3.6 3.6 0 0 1 .329-1A3.36 3.36 0 0 1 1.9.431 3.5 3.5 0 0 1 2.896.1 7 7 0 0 1 3.95.008Q4.19.002 4.432 0h.573zm-.107 2.518-4.756.959H6.13a.66.66 0 0 0-.296.133.5.5 0 0 0-.16.31c-.004.027-.01.08-.01.16v5.952c0 .14-.012.275-.106.39-.095.115-.21.15-.347.177l-.31.063c-.393.08-.65.133-.881.223a1.4 1.4 0 0 0-.519.333 1.25 1.25 0 0 0-.332.995c.031.297.166.582.395.792.156.142.35.25.578.296.236.047.49.031.858-.043.196-.04.38-.102.555-.205a1.4 1.4 0 0 0 .438-.405 1.5 1.5 0 0 0 .233-.55c.042-.202.052-.386.052-.588V6.347c0-.276.08-.35.302-.404.024-.005 3.954-.797 4.138-.833.257-.049.378.025.378.294v3.524c0 .14-.001.28-.096.396-.094.115-.211.15-.348.178l-.31.062c-.393.08-.649.133-.88.223a1.4 1.4 0 0 0-.52.334 1.26 1.26 0 0 0-.34.994c.03.297.174.582.404.792a1.2 1.2 0 0 0 .577.294c.237.048.49.03.858-.044.197-.04.381-.098.556-.202a1.4 1.4 0 0 0 .438-.405q.173-.252.233-.549a2.7 2.7 0 0 0 .044-.589V2.865c0-.273-.143-.443-.4-.42-.04.003-.383.064-.424.073"/></svg>`;
+  // ── CACHE ────────────────────────────────────────────────────
+  const b64      = s     => btoa(unescape(encodeURIComponent(s))).replace(/[^a-zA-Z0-9]/g, '');
+  const covKey   = (a,t) => 'mbcaa_v3_'   + b64(`${a}||${t}`);
+  const spotKey  = (a,t) => 'mbspot_v1_'  + b64(`${a}||${t}`);
+  const appleKey = (a,t) => 'mbapple_v1_' + b64(`${a}||${t}`);
+  const cacheKey = covKey;
 
-  // ── CACHE LAYER ─────────────────────────────────────────────
-  // Three separate caches: covers, Spotify, Apple Music.
-  // Storing 'NONE' means "looked, found nothing" — avoids repeat API hits.
+  const getLS = k    => { try { return localStorage.getItem(k);    } catch { return null; } };
+  const setLS = (k,v) => { try { localStorage.setItem(k, v);       } catch {} };
 
-  function coverKey(artist, title) {
-    return 'mbcaa_v3_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
-  }
-  function spotKey(artist, title) {
-    return 'mbspot_v1_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
-  }
-  function appleKey(artist, title) {
-    return 'mbapple_v1_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
-  }
-  function cacheKey(artist, title) { return coverKey(artist, title); }
+  const spotifySearchUrl    = (a,t) => `https://open.spotify.com/search/${encodeURIComponent(a+' '+t)}`;
+  const appleMusicSearchUrl = (a,t) => `https://music.apple.com/search?term=${encodeURIComponent(a+' '+t)}`;
 
-  function getLS(k)    { try { return localStorage.getItem(k); }    catch { return null; } }
-  function setLS(k, v) { try { localStorage.setItem(k, v); }        catch {} }
-
-  function spotifySearchUrl(artist, title) {
-    return `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`;
-  }
-  function appleMusicSearchUrl(artist, title) {
-    return `https://music.apple.com/search?term=${encodeURIComponent(artist + ' ' + title)}`;
-  }
-
-  // Extract the best thumbnail URL from a CAA images response
   function bestThumb(images) {
     const front = images?.find(i => i.front) || images?.[0];
-    const url = front?.thumbnails?.small
-        || front?.thumbnails?.['250']
-        || front?.thumbnails?.['500']
-        || front?.thumbnails?.large
-        || front?.image
-        || null;
-    // CAA sometimes returns http:// URLs — force https to avoid mixed content warnings
+    const url = front?.thumbnails?.small || front?.thumbnails?.['250']
+             || front?.thumbnails?.['500'] || front?.thumbnails?.large
+             || front?.image || null;
     return url ? url.replace(/^http:\/\//, 'https://') : null;
   }
 
-  // ── MAIN FETCH ───────────────────────────────────────────────
-  // Cover: searched via release-group endpoint for best canonical art.
-  // Streaming links: searched via release endpoint (url-rels live there).
+  // ── API FETCH ────────────────────────────────────────────────
+  // Cover via release-group CAA; links via release url-rels.
   async function fetchAlbumData(artist, title) {
-    const covCached   = getLS(coverKey(artist, title));
-    const spotCached  = getLS(spotKey(artist, title));
-    const appleCached = getLS(appleKey(artist, title));
+    const cc = getLS(covKey(artist, title));
+    const sc = getLS(spotKey(artist, title));
+    const ac = getLS(appleKey(artist, title));
 
-    if (covCached !== null && spotCached !== null && appleCached !== null) {
+    if (cc !== null && sc !== null && ac !== null) {
       return {
-        cover:   covCached   === 'NONE' ? null : covCached,
-        spotify: spotCached  === 'NONE' ? spotifySearchUrl(artist, title)   : spotCached,
-        apple:   appleCached === 'NONE' ? appleMusicSearchUrl(artist, title) : appleCached,
-        fromCache: true,
+        cover:   cc === 'NONE' ? null : cc,
+        spotify: sc === 'NONE' ? spotifySearchUrl(artist, title)   : sc,
+        apple:   ac === 'NONE' ? appleMusicSearchUrl(artist, title) : ac,
       };
     }
 
     try {
       let cover = null, spotify = null, apple = null;
 
-      // ── Step 1: Release group search → cover art ─────────────
-      // Only accept results with score ≥ 90 AND where the artist
-      // name loosely matches, to avoid wrong-album false positives.
-      if (covCached === null) {
+      // Release-group → cover art
+      if (cc === null) {
         try {
-          const rgQuery = encodeURIComponent(`artist:"${artist}" releasegroup:"${title}"`);
-          const rgRes = await fetch(`https://musicbrainz.org/ws/2/release-group/?query=${rgQuery}&limit=5&fmt=json`);
-          if (rgRes.ok) {
-            const { 'release-groups': rgs = [] } = await rgRes.json();
-            const artistLower = artist.toLowerCase();
-            const titleLower  = title.toLowerCase();
-            for (const rg of rgs.slice(0, 5)) {
-              // Skip low-confidence matches
+          const q = encodeURIComponent(`artist:"${artist}" releasegroup:"${title}"`);
+          const res = await fetch(`https://musicbrainz.org/ws/2/release-group/?query=${q}&limit=5&fmt=json`);
+          if (res.ok) {
+            const al = artist.toLowerCase(), tl = title.toLowerCase();
+            for (const rg of (await res.json())['release-groups']?.slice(0, 5) ?? []) {
               if ((rg.score ?? 0) < 90) continue;
-              // Cross-check artist name appears in the result's artist credits
-              const rgArtist = (rg['artist-credit'] || [])
-                .map(a => (a.artist?.name || a.name || '')).join(' ').toLowerCase();
-              if (!rgArtist.includes(artistLower) && !artistLower.includes(rgArtist.split(' ')[0])) continue;
-              // Cross-check title
-              if (!rg.title?.toLowerCase().includes(titleLower) &&
-                  !titleLower.includes(rg.title?.toLowerCase())) continue;
+              const rgA = (rg['artist-credit'] || []).map(a => (a.artist?.name || a.name || '')).join(' ').toLowerCase();
+              if (!rgA.includes(al) && !al.includes(rgA.split(' ')[0])) continue;
+              if (!rg.title?.toLowerCase().includes(tl) && !tl.includes(rg.title?.toLowerCase())) continue;
               try {
-                const caaRes = await fetch(`https://coverartarchive.org/release-group/${rg.id}`);
-                if (!caaRes.ok) continue;
-                const thumb = bestThumb((await caaRes.json()).images);
+                const caa = await fetch(`https://coverartarchive.org/release-group/${rg.id}`);
+                if (!caa.ok) continue;
+                const thumb = bestThumb((await caa.json()).images);
                 if (thumb) { cover = thumb; break; }
               } catch { continue; }
             }
           }
         } catch {}
       } else {
-        cover = covCached === 'NONE' ? null : covCached;
+        cover = cc === 'NONE' ? null : cc;
       }
 
-      // ── Step 2: Release search → Spotify + Apple Music ───────
-      if (spotCached === null || appleCached === null) {
+      // Release → Spotify + Apple Music links
+      if (sc === null || ac === null) {
         try {
-          const relQuery = encodeURIComponent(`artist:"${artist}" release:"${title}"`);
-          const relRes = await fetch(`https://musicbrainz.org/ws/2/release/?query=${relQuery}&limit=5&fmt=json`);
-          if (relRes.ok) {
-            const { releases = [] } = await relRes.json();
-            for (const release of releases.slice(0, 5)) {
+          const q = encodeURIComponent(`artist:"${artist}" release:"${title}"`);
+          const res = await fetch(`https://musicbrainz.org/ws/2/release/?query=${q}&limit=5&fmt=json`);
+          if (res.ok) {
+            for (const rel of (await res.json()).releases?.slice(0, 5) ?? []) {
               if (spotify && apple) break;
               try {
-                const urlRes = await fetch(`https://musicbrainz.org/ws/2/release/${release.id}?inc=url-rels&fmt=json`);
-                if (!urlRes.ok) continue;
-                const { relations = [] } = await urlRes.json();
-                for (const r of relations) {
-                  const u = r.url?.resource || '';
-                  if (!spotify && u.includes('open.spotify.com/album')) spotify = u;
-                  if (!apple   && (u.includes('music.apple.com') || u.includes('itunes.apple.com'))) apple = u;
+                const r = await fetch(`https://musicbrainz.org/ws/2/release/${rel.id}?inc=url-rels&fmt=json`);
+                if (!r.ok) continue;
+                for (const { url: u } of (await r.json()).relations ?? []) {
+                  const href = u?.resource || '';
+                  if (!spotify && href.includes('open.spotify.com/album')) spotify = href;
+                  if (!apple   && (href.includes('music.apple.com') || href.includes('itunes.apple.com'))) apple = href;
                 }
               } catch { continue; }
             }
           }
         } catch {}
       } else {
-        spotify = spotCached  === 'NONE' ? null : spotCached;
-        apple   = appleCached === 'NONE' ? null : appleCached;
+        spotify = sc === 'NONE' ? null : sc;
+        apple   = ac === 'NONE' ? null : ac;
       }
 
-      setLS(coverKey(artist, title), cover   || 'NONE');
+      setLS(covKey(artist, title),   cover   || 'NONE');
       setLS(spotKey(artist, title),  spotify || 'NONE');
       setLS(appleKey(artist, title), apple   || 'NONE');
 
@@ -752,83 +635,67 @@ function render(COLLECTION) {
         spotify: spotify || spotifySearchUrl(artist, title),
         apple:   apple   || appleMusicSearchUrl(artist, title),
       };
-
     } catch (e) {
-      console.warn(`fetchAlbumData failed: ${artist} – ${title}:`, e.message);
+      console.warn(`fetchAlbumData: ${artist} – ${title}:`, e.message);
       return { cover: null, spotify: spotifySearchUrl(artist, title), apple: appleMusicSearchUrl(artist, title) };
     }
   }
 
-  // ── APPLY COVER ──────────────────────────────────────────────
+  // ── APPLY FUNCTIONS ──────────────────────────────────────────
   function applyCovers(key, url) {
     if (!url) return;
     document.querySelectorAll(`img[data-key="${key}"]`).forEach(img => {
       img.onload = () => {
         img.style.display = 'block';
-        const shimmer = img.previousElementSibling;
-        if (shimmer?.classList.contains('shimmer')) shimmer.style.display = 'none';
+        const s = img.previousElementSibling;
+        if (s?.classList.contains('shimmer')) s.style.display = 'none';
       };
       img.onerror = () => {
-        const shimmer = img.previousElementSibling;
-        if (shimmer?.classList.contains('shimmer')) shimmer.style.display = 'none';
+        const s = img.previousElementSibling;
+        if (s?.classList.contains('shimmer')) s.style.display = 'none';
       };
       img.src = url;
     });
   }
 
-  // ── APPLY SPOTIFY LINK ───────────────────────────────────────
   function applySpotify(key, url) {
     if (!url) return;
-    document.querySelectorAll(`.ov-spotify-slot[data-spotkey="${key}"]`).forEach(slot => {
-      slot.innerHTML = `<a class="ov-spotify" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${SPOTIFY_ICON} Spotify</a>`;
+    document.querySelectorAll(`.ov-spotify-slot[data-spotkey="${key}"]`).forEach(s => {
+      s.innerHTML = `<a class="ov-spotify" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${SPOTIFY_ICON} Spotify</a>`;
     });
-    document.querySelectorAll(`.td-spotify[data-spotkey="${key}"]`).forEach(cell => {
-      cell.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${SPOTIFY_ICON} Listen</a>`;
+    document.querySelectorAll(`.td-spotify[data-spotkey="${key}"]`).forEach(c => {
+      c.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${SPOTIFY_ICON} Listen</a>`;
     });
-    // Featured block — rebuild links if both services now known
     updateFeaturedLinks(key);
   }
 
-  // ── APPLY APPLE MUSIC LINK ───────────────────────────────────
   function applyAppleMusic(key, url) {
     if (!url) return;
-    document.querySelectorAll(`.ov-apple-slot[data-spotkey="${key}"]`).forEach(slot => {
-      slot.innerHTML = `<a class="ov-apple" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${APPLE_ICON} Apple Music</a>`;
+    document.querySelectorAll(`.ov-apple-slot[data-spotkey="${key}"]`).forEach(s => {
+      s.innerHTML = `<a class="ov-apple" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${APPLE_ICON} Apple Music</a>`;
     });
-    document.querySelectorAll(`.td-apple[data-spotkey="${key}"]`).forEach(cell => {
-      cell.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${APPLE_ICON} Listen</a>`;
+    document.querySelectorAll(`.td-apple[data-spotkey="${key}"]`).forEach(c => {
+      c.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${APPLE_ICON} Listen</a>`;
     });
-    // Featured block
     updateFeaturedLinks(key);
   }
 
-  // Populate featured links — called by both applySpotify and applyAppleMusic
   function updateFeaturedLinks(key) {
-    const linksEl = document.querySelector(`.featured-links[data-spotkey="${key}"]`);
-    if (!linksEl) return;
-    const [artist, title] = keyToArtistTitle(key);
-    if (!artist) return;
-    const spotRaw  = getLS(spotKey(artist, title));
-    const appleRaw = getLS(appleKey(artist, title));
-    // Use direct URL if found, otherwise fall back to search — always show buttons once resolved
-    const spotUrl  = spotRaw  !== null ? (spotRaw  === 'NONE' ? spotifySearchUrl(artist, title)   : spotRaw)  : null;
-    const appleUrl = appleRaw !== null ? (appleRaw === 'NONE' ? appleMusicSearchUrl(artist, title) : appleRaw) : null;
-    const spotWrap  = linksEl.querySelector('.feat-spot-wrap');
-    const appleWrap = linksEl.querySelector('.feat-apple-wrap');
-    if (spotWrap  && spotUrl)  spotWrap.innerHTML  = `<a class="feat-spotify" href="${spotUrl}"  target="_blank" rel="noopener">${SPOTIFY_ICON} Spotify</a>`;
-    if (appleWrap && appleUrl) appleWrap.innerHTML = `<a class="feat-apple"   href="${appleUrl}" target="_blank" rel="noopener">${APPLE_ICON} Apple Music</a>`;
-  }
-
-  // Reverse-lookup artist+title from a cacheKey isn't possible,
-  // so we store a map of key → {artist,title} for featured lookup use
-  const toResolve = new Map();
-  const keyMeta   = new Map();
-  function keyToArtistTitle(key) {
+    const el = document.querySelector(`.featured-links[data-spotkey="${key}"]`);
+    if (!el) return;
     const m = keyMeta.get(key);
-    return m ? [m.artist, m.title] : ['', ''];
+    if (!m) return;
+    const { artist, title } = m;
+    const sc = getLS(spotKey(artist, title));
+    const ac = getLS(appleKey(artist, title));
+    const su = sc !== null ? (sc === 'NONE' ? spotifySearchUrl(artist, title)   : sc) : null;
+    const au = ac !== null ? (ac === 'NONE' ? appleMusicSearchUrl(artist, title) : ac) : null;
+    const sw = el.querySelector('.feat-spot-wrap');
+    const aw = el.querySelector('.feat-apple-wrap');
+    if (sw && su) sw.innerHTML = `<a class="feat-spotify" href="${su}" target="_blank" rel="noopener">${SPOTIFY_ICON} Spotify</a>`;
+    if (aw && au) aw.innerHTML = `<a class="feat-apple"   href="${au}" target="_blank" rel="noopener">${APPLE_ICON} Apple Music</a>`;
   }
 
-  // ── SCROLL TO ROW ────────────────────────────────────────────
   function scrollToRow(key) {
     const row = document.getElementById(`row-${key}`);
     if (!row) return;
@@ -838,10 +705,14 @@ function render(COLLECTION) {
     row.classList.add('row-highlight');
   }
 
+  // ── DOM HELPERS ──────────────────────────────────────────────
+  const toResolve = new Map();
+  const keyMeta   = new Map();
+
   function makeImgPair(pick) {
     const key = cacheKey(pick.artist, pick.title);
     toResolve.set(key, { artist: pick.artist, title: pick.title });
-    keyMeta.set(key, { artist: pick.artist, title: pick.title });
+    keyMeta.set(key,   { artist: pick.artist, title: pick.title });
     const shimmer = document.createElement('div');
     shimmer.className = 'shimmer';
     const img = document.createElement('img');
@@ -851,44 +722,19 @@ function render(COLLECTION) {
     return { shimmer, img };
   }
 
-  // ── SERVICE SLOTS (overlay placeholders) ────────────────────
-  function makeServiceSlots(pick) {
-    const key = cacheKey(pick.artist, pick.title);
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;margin-top:4px;';
-
-    const spotSlot = document.createElement('div');
-    spotSlot.className = 'ov-spotify-slot';
-    spotSlot.dataset.spotkey = key;
-
-    const appleSlot = document.createElement('div');
-    appleSlot.className = 'ov-apple-slot';
-    appleSlot.dataset.spotkey = key;
-
-    wrap.appendChild(spotSlot);
-    wrap.appendChild(appleSlot);
-    return wrap;
-  }
-
-  // ── CARD BUILDERS ───────────────────────────────────────────
   function makeSingleCard(pick, person) {
+    const key  = cacheKey(pick.artist, pick.title);
     const card = document.createElement('div');
     card.className = 'album-card is-linked';
-    const key = cacheKey(pick.artist, pick.title);
     const { shimmer, img } = makeImgPair(pick);
-
     const overlay = document.createElement('div');
     overlay.className = 'album-overlay';
-
-    const info = document.createElement('div');
-    info.innerHTML = `
+    overlay.innerHTML = `
       <div class="ov-person">${person}</div>
       <div class="ov-title">${pick.title}</div>
       <div class="ov-artist">${pick.artist}</div>
       ${pick.year ? `<div class="ov-year">${pick.year}</div>` : ''}
     `;
-    overlay.appendChild(info);
-
     card.appendChild(shimmer);
     card.appendChild(img);
     card.appendChild(overlay);
@@ -897,50 +743,37 @@ function render(COLLECTION) {
   }
 
   function makeSplitCard(picks, person) {
-    const [pickA, pickB] = picks;
     const card = document.createElement('div');
     card.className = 'album-card--split is-linked';
 
-    const keyA = cacheKey(pickA.artist, pickA.title);
-    const keyB = cacheKey(pickB.artist, pickB.title);
-
-    const halfA = document.createElement('div');
-    halfA.className = 'split-half split-half--a';
-    const { shimmer: shimA, img: imgA } = makeImgPair(pickA);
-    halfA.appendChild(shimA); halfA.appendChild(imgA);
-    halfA.addEventListener('click', (e) => { e.stopPropagation(); scrollToRow(keyA); });
-
-    const halfB = document.createElement('div');
-    halfB.className = 'split-half split-half--b';
-    const { shimmer: shimB, img: imgB } = makeImgPair(pickB);
-    halfB.appendChild(shimB); halfB.appendChild(imgB);
-    halfB.addEventListener('click', (e) => { e.stopPropagation(); scrollToRow(keyB); });
+    picks.forEach((pick, i) => {
+      const half = document.createElement('div');
+      half.className = `split-half split-half--${i === 0 ? 'a' : 'b'}`;
+      const { shimmer, img } = makeImgPair(pick);
+      half.appendChild(shimmer);
+      half.appendChild(img);
+      const key = cacheKey(pick.artist, pick.title);
+      half.addEventListener('click', e => { e.stopPropagation(); scrollToRow(key); });
+      card.appendChild(half);
+    });
 
     const overlay = document.createElement('div');
     overlay.className = 'split-overlay';
-
-    const header = document.createElement('div');
-    header.className = 'ov-person';
-    header.textContent = `${person} · double`;
-    overlay.appendChild(header);
-
-    [pickA, pickB].forEach(pick => {
-      const entry = document.createElement('div');
-      entry.className = 'split-entry';
-      entry.innerHTML = `
-        <div class="ov-title">${pick.title}</div>
-        <div class="ov-artist">${pick.artist}</div>
-        ${pick.year ? `<div class="ov-year">${pick.year}</div>` : ''}
-      `;
-      overlay.appendChild(entry);
-    });
-
-    card.appendChild(halfA); card.appendChild(halfB); card.appendChild(overlay);
+    overlay.innerHTML = `
+      <div class="ov-person">${person} · double</div>
+      ${picks.map(p => `
+        <div class="split-entry">
+          <div class="ov-title">${p.title}</div>
+          <div class="ov-artist">${p.artist}</div>
+          ${p.year ? `<div class="ov-year">${p.year}</div>` : ''}
+        </div>`).join('')}
+    `;
+    card.appendChild(overlay);
     return card;
   }
 
   function makeEmptyCard() {
-    const card = document.createElement('div');
+    const card  = document.createElement('div');
     card.className = 'album-card album-card--empty';
     const empty = document.createElement('div');
     empty.className = 'empty-slot';
@@ -949,14 +782,13 @@ function render(COLLECTION) {
     return card;
   }
 
-  // ── COUNTS ──────────────────────────────────────────────────
+  // ── COUNTS ───────────────────────────────────────────────────
   const roundCount = Math.max(...COLLECTION.map(e => e.picks.length));
-  const people = COLLECTION.map(e => e.person);
-  let totalPicks = 0;
+  const people     = COLLECTION.map(e => e.person);
+  let   totalPicks = 0;
   COLLECTION.forEach(e => e.picks.forEach(p => { if (p) totalPicks += toArray(p).length; }));
 
-  // ── BUILD FEATURED BLOCK ────────────────────────────────────
-  // Find the pick with the highest week number across all entries
+  // ── FEATURED BLOCK ───────────────────────────────────────────
   let featuredPick = null, featuredPerson = null;
   COLLECTION.forEach(entry => {
     entry.picks.forEach(raw => {
@@ -975,35 +807,16 @@ function render(COLLECTION) {
     toResolve.set(featKey, { artist: featuredPick.artist, title: featuredPick.title });
     keyMeta.set(featKey,   { artist: featuredPick.artist, title: featuredPick.title });
 
-    const featured = document.getElementById('featured');
-    featured.className = 'featured';
-
-    const label = document.createElement('div');
-    label.className = 'featured-label';
-    label.textContent = "This Week's Album";
-
-    const artWrap = document.createElement('div');
-    artWrap.className = 'featured-art';
     const artShimmer = document.createElement('div');
     artShimmer.className = 'shimmer';
     const artImg = document.createElement('img');
     artImg.alt = `${featuredPick.artist} – ${featuredPick.title}`;
     artImg.dataset.key = featKey;
     artImg.addEventListener('error', () => { artShimmer.style.display = 'none'; });
+    const artWrap = document.createElement('div');
+    artWrap.className = 'featured-art';
     artWrap.appendChild(artShimmer);
     artWrap.appendChild(artImg);
-
-    const artistEl = document.createElement('div');
-    artistEl.className = 'featured-artist';
-    artistEl.textContent = featuredPick.artist.toUpperCase();
-
-    const titleEl = document.createElement('div');
-    titleEl.className = 'featured-title';
-    titleEl.textContent = featuredPick.title;
-
-    const personEl = document.createElement('div');
-    personEl.className = 'featured-person';
-    personEl.textContent = `picked by ${featuredPerson}`;
 
     const linksEl = document.createElement('div');
     linksEl.className = 'featured-links';
@@ -1013,16 +826,20 @@ function render(COLLECTION) {
       <span class="feat-apple-wrap"><span class="featured-links-pending">…</span></span>
     `;
 
-    featured.appendChild(label);
-    featured.appendChild(artWrap);
-    featured.appendChild(artistEl);
-    featured.appendChild(titleEl);
-    featured.appendChild(personEl);
-    featured.appendChild(linksEl);
+    const featured = document.getElementById('featured');
+    featured.className = 'featured';
+    [
+      Object.assign(document.createElement('div'), { className: 'featured-label',  textContent: "This Week's Album" }),
+      artWrap,
+      Object.assign(document.createElement('div'), { className: 'featured-artist', textContent: featuredPick.artist.toUpperCase() }),
+      Object.assign(document.createElement('div'), { className: 'featured-title',  textContent: featuredPick.title }),
+      Object.assign(document.createElement('div'), { className: 'featured-person', textContent: `picked by ${featuredPerson}` }),
+      linksEl,
+    ].forEach(el => featured.appendChild(el));
   }
 
-  // ── BUILD GRID ──────────────────────────────────────────────
-  const app = document.getElementById('app');
+  // ── GRID ─────────────────────────────────────────────────────
+  const app  = document.getElementById('app');
   const grid = document.createElement('div');
   grid.className = 'rounds-grid';
 
@@ -1032,25 +849,22 @@ function render(COLLECTION) {
     divider.innerHTML = `<span>Round ${r + 1}</span><hr>`;
     grid.appendChild(divider);
 
-    // Sort entries by the earliest week number in this round (nulls last)
-    const sorted = [...COLLECTION].sort((a, b) => {
-      const pickA = a.picks[r] ?? null;
-      const pickB = b.picks[r] ?? null;
-      const weekA = pickA ? Math.min(...toArray(pickA).map(p => p.week ?? Infinity)) : Infinity;
-      const weekB = pickB ? Math.min(...toArray(pickB).map(p => p.week ?? Infinity)) : Infinity;
-      return weekA - weekB;
-    });
-
-    sorted.forEach((entry) => {
+    [...COLLECTION].sort((a, b) => {
+      const wa = a.picks[r] ? Math.min(...toArray(a.picks[r]).map(p => p.week ?? Infinity)) : Infinity;
+      const wb = b.picks[r] ? Math.min(...toArray(b.picks[r]).map(p => p.week ?? Infinity)) : Infinity;
+      return wa - wb;
+    }).forEach(entry => {
       const pick = entry.picks[r] ?? null;
-      if (!pick)               grid.appendChild(makeEmptyCard());
-      else if (isDouble(pick)) grid.appendChild(makeSplitCard(pick, entry.person));
-      else                     grid.appendChild(makeSingleCard(pick, entry.person));
+      grid.appendChild(
+        !pick          ? makeEmptyCard() :
+        isDouble(pick) ? makeSplitCard(pick, entry.person) :
+                         makeSingleCard(pick, entry.person)
+      );
     });
   }
   app.appendChild(grid);
 
-  // ── BUILD TABLE ─────────────────────────────────────────────
+  // ── TABLE ────────────────────────────────────────────────────
   const tableSection = document.getElementById('table-section');
   const h2 = document.createElement('h2');
   h2.textContent = 'All Picks';
@@ -1059,17 +873,10 @@ function render(COLLECTION) {
   const table = document.createElement('table');
   table.className = 'picks-table';
   table.innerHTML = `
-    <thead>
-      <tr>
-        <th></th>
-        <th>Week</th>
-        <th>Round</th>
-        <th>Person</th>
-        <th>Artist</th>
-        <th>Album</th>
-        <th>Year</th>
-      </tr>
-    </thead>
+    <thead><tr>
+      <th></th><th>Week</th><th>Round</th><th>Person</th>
+      <th>Artist</th><th>Album</th><th>Year</th>
+    </tr></thead>
     <tbody id="table-body"></tbody>
   `;
   tableSection.appendChild(table);
@@ -1077,61 +884,68 @@ function render(COLLECTION) {
 
   const allRows = [];
   for (let r = 0; r < roundCount; r++) {
-    COLLECTION.forEach((entry) => {
+    COLLECTION.forEach(entry => {
       const raw = entry.picks[r] ?? null;
-      if (!raw) {
-        allRows.push({ pick: null, person: entry.person, round: r + 1, double: false });
-      } else {
-        toArray(raw).forEach(pick => {
-          allRows.push({ pick, person: entry.person, round: r + 1, double: isDouble(raw) });
-        });
-      }
+      if (raw) toArray(raw).forEach(pick =>
+        allRows.push({ pick, person: entry.person, round: r + 1, double: isDouble(raw) })
+      );
     });
   }
   allRows.sort((a, b) => (a.pick?.week ?? Infinity) - (b.pick?.week ?? Infinity));
 
   allRows.forEach(({ pick, person, round, double: dbl }) => {
-    if (!pick) return; // hide no-submission rows
     const tr = document.createElement('tr');
-    if (pick) tr.id = `row-${cacheKey(pick.artist, pick.title)}`;
-      if (dbl) tr.classList.add('row-double');
-      const key = cacheKey(pick.artist, pick.title);
+    tr.id = `row-${cacheKey(pick.artist, pick.title)}`;
+    if (dbl) tr.classList.add('row-double');
 
-      const thumbTd = document.createElement('td');
-      const { shimmer, img } = makeImgPair(pick);
-      shimmer.className = 'shimmer table-thumb-shimmer';
-      img.className = 'table-thumb';
-      thumbTd.appendChild(shimmer); thumbTd.appendChild(img);
-      tr.appendChild(thumbTd);
+    const { shimmer, img } = makeImgPair(pick);
+    shimmer.className = 'shimmer table-thumb-shimmer';
+    img.className     = 'table-thumb';
+    const thumbTd = document.createElement('td');
+    thumbTd.appendChild(shimmer);
+    thumbTd.appendChild(img);
 
-      const weekTd   = document.createElement('td'); weekTd.className   = 'td-week';   weekTd.textContent   = pick.week ?? '—';
-      const roundTd  = document.createElement('td'); roundTd.className  = 'td-round';  roundTd.textContent  = `R${round}`;
-      const personTd = document.createElement('td'); personTd.className = 'td-person'; personTd.textContent = person;
-      if (dbl) personTd.innerHTML += `<span class="td-double-badge">double</span>`;
-      const artistTd = document.createElement('td'); artistTd.className = 'td-artist'; artistTd.textContent = pick.artist;
-      const albumTd  = document.createElement('td'); albumTd.className  = 'td-album';  albumTd.textContent  = pick.title;
-      const yearTd   = document.createElement('td'); yearTd.className   = 'td-year';   yearTd.textContent   = pick.year ?? '—';
+    const personTd = document.createElement('td');
+    personTd.className   = 'td-person';
+    personTd.textContent = person;
+    if (dbl) personTd.innerHTML += `<span class="td-double-badge">double</span>`;
 
-      tr.appendChild(weekTd); tr.appendChild(roundTd); tr.appendChild(personTd);
-      tr.appendChild(artistTd); tr.appendChild(albumTd); tr.appendChild(yearTd);
+    [
+      thumbTd,
+      Object.assign(document.createElement('td'), { className: 'td-week',   textContent: pick.week ?? '—' }),
+      Object.assign(document.createElement('td'), { className: 'td-round',  textContent: `R${round}` }),
+      personTd,
+      Object.assign(document.createElement('td'), { className: 'td-artist', textContent: pick.artist }),
+      Object.assign(document.createElement('td'), { className: 'td-album',  textContent: pick.title }),
+      Object.assign(document.createElement('td'), { className: 'td-year',   textContent: pick.year ?? '—' }),
+    ].forEach(td => tr.appendChild(td));
+
     tbody.appendChild(tr);
   });
 
-  // ── HEADER META ─────────────────────────────────────────────
+  // ── META ─────────────────────────────────────────────────────
   document.getElementById('header-meta').textContent =
     `${people.length} people · ${roundCount} rounds · ${totalPicks} picks`;
 
-  // ── RESOLVE COVERS + SPOTIFY ─────────────────────────────────
-  // Featured album is resolved in isolation first.
-  // The main queue starts only after featured has fully resolved.
-
+  // ── COVER RESOLUTION ─────────────────────────────────────────
+  // Featured album resolves first. Main queue starts only after it completes.
   const featuredKey = featuredPick ? cacheKey(featuredPick.artist, featuredPick.title) : null;
-
-  // Main queue — deduplicated, featured key excluded
   const queue = [...toResolve.entries()].filter(([k]) => k !== featuredKey);
   let qi = 0;
 
-  function applyAll(key, artist, title, cover, spotify, apple) {
+  function fromCache(artist, title) {
+    const cc = getLS(covKey(artist, title));
+    const sc = getLS(spotKey(artist, title));
+    const ac = getLS(appleKey(artist, title));
+    if (cc === null || sc === null || ac === null) return null;
+    return {
+      cover:   cc === 'NONE' ? null : cc,
+      spotify: sc === 'NONE' ? spotifySearchUrl(artist, title)   : sc,
+      apple:   ac === 'NONE' ? appleMusicSearchUrl(artist, title) : ac,
+    };
+  }
+
+  function applyAll(key, { cover, spotify, apple }) {
     applyCovers(key, cover);
     applySpotify(key, spotify);
     applyAppleMusic(key, apple);
@@ -1141,46 +955,27 @@ function render(COLLECTION) {
   function resolveNext() {
     if (qi >= queue.length) return;
     const [key, { artist, title }] = queue[qi++];
-
-    const cc = getLS(coverKey(artist, title));
-    const sc = getLS(spotKey(artist, title));
-    const ac = getLS(appleKey(artist, title));
-
-    if (cc !== null && sc !== null && ac !== null) {
-      applyAll(key, artist, title,
-        cc === 'NONE' ? null : cc,
-        sc === 'NONE' ? spotifySearchUrl(artist, title) : sc,
-        ac === 'NONE' ? appleMusicSearchUrl(artist, title) : ac
-      );
-      resolveNext(); // cached — no delay needed
-      return;
-    }
-
-    fetchAlbumData(artist, title).then(({ cover, spotify, apple }) => {
-      applyAll(key, artist, title, cover, spotify, apple);
-      setTimeout(resolveNext, 1100);
-    });
-  }
-
-  // ── FEATURED FIRST ───────────────────────────────────────────
-  if (featuredKey && featuredPick) {
-    const { artist, title } = featuredPick;
-    const cc = getLS(coverKey(artist, title));
-    const sc = getLS(spotKey(artist, title));
-    const ac = getLS(appleKey(artist, title));
-
-    if (cc !== null && sc !== null && ac !== null) {
-      // Cached — apply instantly, start queue with no delay
-      applyAll(featuredKey, artist, title,
-        cc === 'NONE' ? null : cc,
-        sc === 'NONE' ? spotifySearchUrl(artist, title) : sc,
-        ac === 'NONE' ? appleMusicSearchUrl(artist, title) : ac
-      );
+    const cached = fromCache(artist, title);
+    if (cached) {
+      applyAll(key, cached);
       resolveNext();
     } else {
-      // Not cached — fetch featured, then start queue after rate-limit window
-      fetchAlbumData(artist, title).then(({ cover, spotify, apple }) => {
-        applyAll(featuredKey, artist, title, cover, spotify, apple);
+      fetchAlbumData(artist, title).then(data => {
+        applyAll(key, data);
+        setTimeout(resolveNext, 1100);
+      });
+    }
+  }
+
+  if (featuredKey && featuredPick) {
+    const { artist, title } = featuredPick;
+    const cached = fromCache(artist, title);
+    if (cached) {
+      applyAll(featuredKey, cached);
+      resolveNext();
+    } else {
+      fetchAlbumData(artist, title).then(data => {
+        applyAll(featuredKey, data);
         setTimeout(resolveNext, 1100);
       });
     }
@@ -1188,11 +983,10 @@ function render(COLLECTION) {
     resolveNext();
   }
 
-})();
 } // end render()
 
-document.getElementById('footer-year').textContent = new Date().getFullYear();
 const now = new Date();
+document.getElementById('footer-year').textContent  = now.getFullYear();
 document.getElementById('last-updated').textContent = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 </script>
 
