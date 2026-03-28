@@ -652,12 +652,14 @@ function render(COLLECTION) {
   // Extract the best thumbnail URL from a CAA images response
   function bestThumb(images) {
     const front = images?.find(i => i.front) || images?.[0];
-    return front?.thumbnails?.small
+    const url = front?.thumbnails?.small
         || front?.thumbnails?.['250']
         || front?.thumbnails?.['500']
         || front?.thumbnails?.large
         || front?.image
         || null;
+    // CAA sometimes returns http:// URLs — force https to avoid mixed content warnings
+    return url ? url.replace(/^http:\/\//, 'https://') : null;
   }
 
   // ── MAIN FETCH ───────────────────────────────────────────────
