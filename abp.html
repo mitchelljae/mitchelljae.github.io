@@ -629,7 +629,7 @@ function render(COLLECTION) {
   // Storing 'NONE' means "looked, found nothing" — avoids repeat API hits.
 
   function coverKey(artist, title) {
-    return 'mbcaa_v2_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
+    return 'mbcaa_v3_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
   }
   function spotKey(artist, title) {
     return 'mbspot_v1_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
@@ -637,7 +637,6 @@ function render(COLLECTION) {
   function appleKey(artist, title) {
     return 'mbapple_v1_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
   }
-  // cacheKey used for DOM data-key / row IDs (same as coverKey)
   function cacheKey(artist, title) { return coverKey(artist, title); }
 
   function getLS(k)    { try { return localStorage.getItem(k); }    catch { return null; } }
@@ -650,7 +649,20 @@ function render(COLLECTION) {
     return `https://music.apple.com/search?term=${encodeURIComponent(artist + ' ' + title)}`;
   }
 
-  // ── MAIN FETCH: cover + Spotify + Apple Music in one MB pass ─
+  // Extract the best thumbnail URL from a CAA images response
+  function bestThumb(images) {
+    const front = images?.find(i => i.front) || images?.[0];
+    return front?.thumbnails?.small
+        || front?.thumbnails?.['250']
+        || front?.thumbnails?.['500']
+        || front?.thumbnails?.large
+        || front?.image
+        || null;
+  }
+
+  // ── MAIN FETCH ───────────────────────────────────────────────
+  // Cover: searched via release-group endpoint for best canonical art.
+  // Streaming links: searched via release endpoint (url-rels live there).
   async function fetchAlbumData(artist, title) {
     const covCached   = getLS(coverKey(artist, title));
     const spotCached  = getLS(spotKey(artist, title));
@@ -666,56 +678,54 @@ function render(COLLECTION) {
     }
 
     try {
-      const query = encodeURIComponent(`artist:"${artist}" release:"${title}"`);
-      const mbRes = await fetch(`https://musicbrainz.org/ws/2/release/?query=${query}&limit=5&fmt=json`);
-      if (!mbRes.ok) throw new Error(`MB search ${mbRes.status}`);
-      const { releases = [] } = await mbRes.json();
-      if (!releases.length) {
-        setLS(coverKey(artist, title), 'NONE');
-        setLS(spotKey(artist, title),  'NONE');
-        setLS(appleKey(artist, title), 'NONE');
-        return { cover: null, spotify: spotifySearchUrl(artist, title), apple: appleMusicSearchUrl(artist, title) };
-      }
-
       let cover = null, spotify = null, apple = null;
 
-      for (const release of releases.slice(0, 5)) {
-        const mbid = release.id;
-
-        // Cover Art Archive
-        if (!cover) {
-          try {
-            const caaRes = await fetch(`https://coverartarchive.org/release/${mbid}`);
-            if (caaRes.ok) {
-              const caaData = await caaRes.json();
-              const front = caaData.images?.find(i => i.front) || caaData.images?.[0];
-              const url = front?.thumbnails?.small
-                       || front?.thumbnails?.['250']
-                       || front?.thumbnails?.['500']
-                       || front?.thumbnails?.large
-                       || front?.image;
-              if (url) cover = url;
+      // ── Step 1: Release group search → cover art ─────────────
+      if (covCached === null) {
+        try {
+          const rgQuery = encodeURIComponent(`artist:"${artist}" releasegroup:"${title}"`);
+          const rgRes = await fetch(`https://musicbrainz.org/ws/2/release-group/?query=${rgQuery}&limit=5&fmt=json`);
+          if (rgRes.ok) {
+            const { 'release-groups': rgs = [] } = await rgRes.json();
+            for (const rg of rgs.slice(0, 5)) {
+              try {
+                const caaRes = await fetch(`https://coverartarchive.org/release-group/${rg.id}`);
+                if (!caaRes.ok) continue;
+                const thumb = bestThumb((await caaRes.json()).images);
+                if (thumb) { cover = thumb; break; }
+              } catch { continue; }
             }
-          } catch {}
-        }
+          }
+        } catch {}
+      } else {
+        cover = covCached === 'NONE' ? null : covCached;
+      }
 
-        // URL relationships — Spotify + Apple Music in one call
-        if (!spotify || !apple) {
-          try {
-            const relRes = await fetch(`https://musicbrainz.org/ws/2/release/${mbid}?inc=url-rels&fmt=json`);
-            if (relRes.ok) {
-              const { relations = [] } = await relRes.json();
-              for (const r of relations) {
-                const res = r.url?.resource || '';
-                if (!spotify && res.includes('open.spotify.com/album')) spotify = res;
-                // Apple Music stores links as both itunes.apple.com and music.apple.com
-                if (!apple && (res.includes('music.apple.com') || res.includes('itunes.apple.com'))) apple = res;
-              }
+      // ── Step 2: Release search → Spotify + Apple Music ───────
+      if (spotCached === null || appleCached === null) {
+        try {
+          const relQuery = encodeURIComponent(`artist:"${artist}" release:"${title}"`);
+          const relRes = await fetch(`https://musicbrainz.org/ws/2/release/?query=${relQuery}&limit=5&fmt=json`);
+          if (relRes.ok) {
+            const { releases = [] } = await relRes.json();
+            for (const release of releases.slice(0, 5)) {
+              if (spotify && apple) break;
+              try {
+                const urlRes = await fetch(`https://musicbrainz.org/ws/2/release/${release.id}?inc=url-rels&fmt=json`);
+                if (!urlRes.ok) continue;
+                const { relations = [] } = await urlRes.json();
+                for (const r of relations) {
+                  const u = r.url?.resource || '';
+                  if (!spotify && u.includes('open.spotify.com/album')) spotify = u;
+                  if (!apple   && (u.includes('music.apple.com') || u.includes('itunes.apple.com'))) apple = u;
+                }
+              } catch { continue; }
             }
-          } catch {}
-        }
-
-        if (cover && spotify && apple) break;
+          }
+        } catch {}
+      } else {
+        spotify = spotCached  === 'NONE' ? null : spotCached;
+        apple   = appleCached === 'NONE' ? null : appleCached;
       }
 
       setLS(coverKey(artist, title), cover   || 'NONE');
