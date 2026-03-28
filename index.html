@@ -1,104 +1,954 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-  	<title>Mitchell Jae</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#C75EFF" />
-    <link rel="canonical" href="https://mitchelljae.com/">
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.png?">
-    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16.png">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg?" color="#000000">
-    <link rel="stylesheet" type="text/css" href="styles/style.css" />
-    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
-    <link rel="stylesheet" type="text/css" href="/styles/themes/glitch.css" />
-    <script type="text/javascript">
-      import { SVGs } from "/templates/social-svgs.js";
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Album Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
 
-      function renderSocial(platform) {
-        // Check that this platform exists
-        if (settings.social[platform.name]) {
-          return html`
-            <a
-              aria-label="${settings.name} on ${platform.name}"
-              href="${settings.social[platform.name]}"
-              tabindex="-1"
-              rel=${platform.rel}
-              >${SVGs[platform.name]}</a
-            >
-          `;
-        }
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0d0d;
+      --surface: #141414;
+      --border:  #222;
+      --accent:  #e8ff00;
+      --muted:   #555;
+      --text:    #e8e8e8;
+      --label:   #888;
+      --gap:     4px;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 48px 48px 28px;
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
+    header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4.5rem);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      color: var(--accent);
+    }
+    header .meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      padding-bottom: 6px;
+    }
+
+    /* ── MAIN ── */
+    main { padding: 0 48px 60px; }
+
+    /* ── ROUND GRID ── */
+    .rounds-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: var(--gap);
+    }
+
+    /* ── ALBUM CARD (single) ── */
+    .album-card {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: default;
+    }
+    .album-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      transition: transform 0.3s ease, filter 0.3s ease;
+      filter: saturate(0.85);
+    }
+    .album-card:hover img { transform: scale(1.06); filter: saturate(1.1); }
+
+    .album-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 55%);
+      opacity: 0;
+      transition: opacity 0.22s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8px;
+      pointer-events: none;
+    }
+    .album-card:hover .album-overlay { opacity: 1; }
+    .album-overlay .ov-person {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+    .album-overlay .ov-title {
+      font-size: 0.68rem;
+      font-weight: 400;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .album-overlay .ov-artist {
+      font-size: 0.62rem;
+      color: rgba(255,255,255,0.65);
+    }
+    .album-overlay .ov-year {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--accent);
+      margin-top: 2px;
+    }
+
+    /* empty slot */
+    .album-card--empty {
+      border-style: dashed;
+      opacity: 0.28;
+    }
+    .empty-slot {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    .album-card .placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      font-size: 1.2rem;
+    }
+
+    /* ── SPLIT CARD (double submission) ──────────────────────────
+       Accent border flags it. Diagonal seam via ::after pseudo.
+       Two clip-path halves hold each cover independently.
+    ── */
+    .album-card--split {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      cursor: default;
+    }
+
+    /* Diagonal seam line */
+    .album-card--split::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        transparent calc(50% - 1px),
+        rgba(0,0,0,0.75) calc(50% - 1px),
+        rgba(0,0,0,0.75) calc(50% + 1px),
+        transparent calc(50% + 1px)
+      );
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .split-half {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .split-half--a { clip-path: polygon(0 0, 100% 0, 0 100%); }
+    .split-half--b { clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+    .split-half img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      filter: saturate(0.85);
+      transition: filter 0.3s ease;
+    }
+    .split-half .shimmer {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Full-card hover overlay for split — dims both halves, shows info */
+    .split-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      opacity: 0;
+      transition: opacity 0.22s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      padding: 10px;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .album-card--split:hover .split-overlay { opacity: 1; }
+    .album-card--split:hover .split-half img { filter: saturate(0.3) brightness(0.4); }
+
+    .split-overlay .ov-person {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--accent);
+      margin-bottom: 3px;
+      letter-spacing: 0.05em;
+    }
+    .split-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 4px 6px;
+      background: rgba(255,255,255,0.05);
+      border-left: 2px solid var(--accent);
+    }
+    .split-entry .ov-title {
+      font-size: 0.64rem;
+      font-weight: 400;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .split-entry .ov-artist {
+      font-size: 0.57rem;
+      color: rgba(255,255,255,0.55);
+    }
+    .split-entry .ov-year {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.52rem;
+      color: var(--accent);
+    }
+
+    /* ── SHIMMER ── */
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+    .shimmer {
+      background: linear-gradient(90deg, #1a1a1a 25%, #272727 50%, #1a1a1a 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+
+    /* ── ROUND DIVIDER ── */
+    .round-divider {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0 6px;
+    }
+    .round-divider:first-child { padding-top: 0; }
+    .round-divider span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+    .round-divider hr {
+      flex: 1;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── TABLE SECTION ── */
+    .table-section { padding: 0 48px 80px; }
+    .table-section h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-bottom: 20px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .picks-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .picks-table thead tr { border-bottom: 2px solid var(--accent); }
+    .picks-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--accent);
+      text-align: left;
+      padding: 8px 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .picks-table th:first-child { width: 56px; }
+    .picks-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .picks-table tbody tr:hover { background: var(--surface); }
+    .picks-table tbody tr.row-empty { opacity: 0.38; }
+    /* Double rows: accent left border */
+    .picks-table tbody tr.row-double { border-left: 2px solid var(--accent); }
+    .picks-table td {
+      padding: 8px 12px;
+      vertical-align: middle;
+      color: var(--text);
+    }
+    .picks-table td:first-child { padding: 6px; width: 56px; }
+
+    .table-thumb {
+      display: none;
+      width: 44px; height: 44px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+    }
+    .table-thumb-shimmer { width: 44px; height: 44px; }
+    .table-thumb-empty {
+      width: 44px; height: 44px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .td-week   { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+    .td-round  { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--label); }
+    .td-person { font-weight: 400; }
+    .td-artist { color: var(--label); }
+    .td-album  { font-weight: 400; }
+    .td-year   { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+    .td-none   { color: var(--muted); font-style: italic; font-size: 0.75rem; }
+    .td-double-badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      background: var(--accent);
+      color: #000;
+      padding: 1px 5px;
+      border-radius: 2px;
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── ROW HIGHLIGHT (scroll target) ── */
+    @keyframes rowflash {
+      0%   { background: rgba(232,255,0,0.18); }
+      100% { background: transparent; }
+    }
+    .picks-table tbody tr.row-highlight {
+      animation: rowflash 1.2s ease-out forwards;
+    }
+
+    /* Clickable cards */
+    .album-card.is-linked,
+    .album-card--split.is-linked { cursor: pointer; }
+    .split-half.is-linked        { cursor: pointer; }
+
+    /* ── SPOTIFY LINK ── */
+    .ov-spotify {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 5px;
+      padding: 3px 7px;
+      background: #1DB954;
+      border-radius: 20px;
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      color: #000;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      pointer-events: all;
+      transition: background 0.15s, transform 0.15s;
+      align-self: flex-start;
+    }
+    .ov-spotify:hover { background: #1ed760; transform: scale(1.05); }
+    .ov-spotify svg { width: 10px; height: 10px; flex-shrink: 0; }
+
+    /* Spotify cell in table */
+    .td-spotify a {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: #1DB954;
+      border-radius: 20px;
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: #000;
+      transition: background 0.15s;
+    }
+    .td-spotify a:hover { background: #1ed760; }
+    .td-spotify a svg { width: 11px; height: 11px; }
+    .td-spotify-pending {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Collection</h1>
+  <span class="meta" id="header-meta"></span>
+</header>
+
+<main id="app"></main>
+<div class="table-section" id="table-section"></div>
+<footer id="footer">edit collection.csv to update · covers via MusicBrainz / Cover Art Archive</footer>
+
+<script>
+// ============================================================
+//  CSV LOADER
+//  Fetches collection.csv from the same directory, parses it,
+//  and builds the COLLECTION structure expected by the renderer.
+//
+//  CSV columns (header row required):
+//    person, round, week, title, artist, year, double, note
+//
+//  double = true means this row shares its grid cell with another
+//  row that has the same person + round (max 2 per cell).
+//  note   = optional, ignored by renderer.
+// ============================================================
+
+async function loadCollection() {
+  const res = await fetch('collection.csv?v=' + Date.now());
+  if (!res.ok) throw new Error(`Could not load collection.csv (HTTP ${res.status})`);
+  const text = await res.text();
+  return parseCSV(text);
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+
+  const col = h => headers.indexOf(h);
+  const iP = col('person'), iR = col('round'), iW = col('week'),
+        iT = col('title'),  iA = col('artist'), iY = col('year'),
+        iD = col('double'), iN = col('note');
+
+  // Parse every data row into a flat record
+  const rows = lines.slice(1).map(line => {
+    // Handle quoted fields containing commas
+    const fields = [];
+    let cur = '', inQuote = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQuote = !inQuote; }
+      else if (ch === ',' && !inQuote) { fields.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    fields.push(cur.trim());
+
+    return {
+      person: fields[iP] || '',
+      round:  parseInt(fields[iR], 10) || 1,
+      week:   parseInt(fields[iW], 10) || null,
+      title:  fields[iT] || '',
+      artist: fields[iA] || '',
+      year:   parseInt(fields[iY], 10) || null,
+      double: (fields[iD] || '').toLowerCase() === 'true',
+      note:   iN >= 0 ? (fields[iN] || '') : '',
+    };
+  }).filter(r => r.person && r.title && r.artist);
+
+  // Derive person order from first appearance in CSV
+  const personOrder = [];
+  rows.forEach(r => { if (!personOrder.includes(r.person)) personOrder.push(r.person); });
+
+  const roundCount = Math.max(...rows.map(r => r.round));
+
+  // Build COLLECTION — one entry per person, picks array indexed by round
+  const collection = personOrder.map(person => {
+    const picks = [];
+    for (let r = 1; r <= roundCount; r++) {
+      const roundRows = rows.filter(row => row.person === person && row.round === r);
+      if (roundRows.length === 0) {
+        picks.push(null);
+      } else if (roundRows.length === 1 && !roundRows[0].double) {
+        const { title, artist, year, week, note } = roundRows[0];
+        picks.push({ title, artist, year, week, ...(note ? { note } : {}) });
+      } else {
+        // Double submission — wrap in array
+        picks.push(roundRows.map(({ title, artist, year, week, note }) => ({
+          title, artist, year, week, ...(note ? { note } : {})
+        })));
       }
-    </script>
-  </head>
-  <body>
-    <main>
-      <div class="wrapper">
-        <div id="content" class="content">
-          <div class="header">
-            <div class='avatar-container'>
-              <img src='/img/pfp.png' class='avatar' alt='Mitchell Jae' />
-            </div>
-            <h1>Mitchell Jae</h1>
-          </div>
+    }
+    return { person, picks };
+  });
 
-          <div class="social-icons">
-          	<a tabindex="-1" aria-label="Twitch" href="https://twitch.tv/mitchelljae"><svg class="social-profile-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" tabindex="0" focusable="true">
-              <path d="M21 3V14.74L16.304 19.435H12.391L9.954 21.783H6.913V19.435H3V6.13L4.227 3H21ZM19.435 4.565H6.13V16.305H9.26V18.652L11.609 16.304H16.304L19.434 13.174V4.565H19.435ZM16.305 7.695V12.391H14.739V7.696H16.304L16.305 7.695ZM12.391 7.695V12.391H10.826V7.696H12.391V7.695Z" fill="#ffffff"></path>
-            </svg></a>
+  return collection;
+}
+</script>
 
-            <a tabindex="-1" aria-label="Youtube" href="https://youtube.com/@mitchelljae"><svg class="social-profile-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" tabindex="0" focusable="true">
-              <path d="M21.543 6.498C22 8.28 22 12 22 12C22 12 22 15.72 21.543 17.502C21.289 18.487 20.546 19.262 19.605 19.524C17.896 20 12 20 12 20C12 20 6.107 20 4.395 19.524C3.45 19.258 2.708 18.484 2.457 17.502C2 15.72 2 12 2 12C2 12 2 8.28 2.457 6.498C2.711 5.513 3.454 4.738 4.395 4.476C6.107 4 12 4 12 4C12 4 17.896 4 19.605 4.476C20.55 4.742 21.292 5.516 21.543 6.498ZM10 15.5L16 12L10 8.5V15.5Z" fill="#333333"></path>
-            </svg></a>
+<script>
+// ── BOOT ────────────────────────────────────────────────────
+// Show a loading state, fetch + parse the CSV, then hand off
+// to the renderer. Any error is shown in place of the page.
 
-            <a tabindex="-1" aria-label="TikTok" href="https://tiktok.com/@mitchelljae"><svg class="social-profile-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" tabindex="0" focusable="true">
-              <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z" fill="#ffffff"></path>
-            </svg></a>
+(async function boot() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);">
+      loading collection.csv…
+    </div>`;
 
-            <a tabindex="-1" aria-label="Instagram" href="https://instagram.com/mitchelljaex"><svg class="social-profile-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" tabindex="0" focusable="true">
-              <path <path d="M12 2C14.717 2 15.056 2.01 16.122 2.06C17.187 2.11 17.912 2.277 18.55 2.525C19.21 2.779 19.766 3.123 20.322 3.678C20.8305 4.1779 21.224 4.78259 21.475 5.45C21.722 6.087 21.89 6.813 21.94 7.878C21.987 8.944 22 9.283 22 12C22 14.717 21.99 15.056 21.94 16.122C21.89 17.187 21.722 17.912 21.475 18.55C21.2247 19.2178 20.8311 19.8226 20.322 20.322C19.822 20.8303 19.2173 21.2238 18.55 21.475C17.913 21.722 17.187 21.89 16.122 21.94C15.056 21.987 14.717 22 12 22C9.283 22 8.944 21.99 7.878 21.94C6.813 21.89 6.088 21.722 5.45 21.475C4.78233 21.2245 4.17753 20.8309 3.678 20.322C3.16941 19.8222 2.77593 19.2175 2.525 18.55C2.277 17.913 2.11 17.187 2.06 16.122C2.013 15.056 2 14.717 2 12C2 9.283 2.01 8.944 2.06 7.878C2.11 6.812 2.277 6.088 2.525 5.45C2.77524 4.78218 3.1688 4.17732 3.678 3.678C4.17767 3.16923 4.78243 2.77573 5.45 2.525C6.088 2.277 6.812 2.11 7.878 2.06C8.944 2.013 9.283 2 12 2ZM12 7C10.6739 7 9.40215 7.52678 8.46447 8.46447C7.52678 9.40215 7 10.6739 7 12C7 13.3261 7.52678 14.5979 8.46447 15.5355C9.40215 16.4732 10.6739 17 12 17C13.3261 17 14.5979 16.4732 15.5355 15.5355C16.4732 14.5979 17 13.3261 17 12C17 10.6739 16.4732 9.40215 15.5355 8.46447C14.5979 7.52678 13.3261 7 12 7ZM18.5 6.75C18.5 6.41848 18.3683 6.10054 18.1339 5.86612C17.8995 5.6317 17.5815 5.5 17.25 5.5C16.9185 5.5 16.6005 5.6317 16.3661 5.86612C16.1317 6.10054 16 6.41848 16 6.75C16 7.08152 16.1317 7.39946 16.3661 7.63388C16.6005 7.8683 16.9185 8 17.25 8C17.5815 8 17.8995 7.8683 18.1339 7.63388C18.3683 7.39946 18.5 7.08152 18.5 6.75ZM12 9C12.7956 9 13.5587 9.31607 14.1213 9.87868C14.6839 10.4413 15 11.2044 15 12C15 12.7956 14.6839 13.5587 14.1213 14.1213C13.5587 14.6839 12.7956 15 12 15C11.2044 15 10.4413 14.6839 9.87868 14.1213C9.31607 13.5587 9 12.7956 9 12C9 11.2044 9.31607 10.4413 9.87868 9.87868C10.4413 9.31607 11.2044 9 12 9Z" fill="#ffffff"></path>
-            </svg></a>
-            
-            <a tabindex="-1" aria-label="Bluesky" href="https://bsky.app/profile/mitchelljae.bsky.social"><svg class="social-profile-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" tabindex="0" focusable="true">
-              <path d="M111.8 62.2C170.2 105.9 233 194.7 256 242.4c23-47.6 85.8-136.4 144.2-180.2c42.1-31.6 110.3-56 110.3 21.8c0 15.5-8.9 130.5-14.1 149.2C478.2 298 412 314.6 353.1 304.5c102.9 17.5 129.1 75.5 72.5 133.5c-107.4 110.2-154.3-27.6-166.3-62.9l0 0c-1.7-4.9-2.6-7.8-3.3-7.8s-1.6 3-3.3 7.8l0 0c-12 35.3-59 173.1-166.3 62.9c-56.5-58-30.4-116 72.5-133.5C100 314.6 33.8 298 15.7 233.1C10.4 214.4 1.5 99.4 1.5 83.9c0-77.8 68.2-53.4 110.3-21.8z" fill="#333333"></path>
-            </svg></a>
-          </div>
+  let COLLECTION;
+  try {
+    COLLECTION = await loadCollection();
+  } catch (e) {
+    app.innerHTML = `
+      <div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.8rem;color:#e05;">
+        ✕ ${e.message}<br><br>
+        <span style="color:var(--muted)">Make sure collection.csv is in the same directory as index.html.</span>
+      </div>`;
+    return;
+  }
 
-          <ul class="link-list">
-            <li class=${classes}>
-              <a href="https://twitch.tv/mitchelljae" target="_blank">
-                <img src=${link.img} alt=${link.altText} />
-                <div class="title">Twitch</div>
-                <div class="text">Live streams, reactions, and maybe the odd game</div>
-              </a>
-            </li>
-            <li class=${classes}>
-              <a href="https://www.youtube.com/@mitchelljae" target="_blank">
-                <img src=${link.img} alt=${link.altText} />
-                <div class="title">Youtube</div>
-                <div class="text">Nothing there as yet</div>
-              </a>
-            </li>
-            <li class=${classes}>
-              <a href="https://bsky.app/profile/mitchelljae.bsky.social" target="_blank">
-                <img src=${link.img} alt=${link.altText} />
-                <div class="title">Bluesky</div>
-                <div class="text">Rarely post, but better than the alternatives</div>
-              </a>
-            </li>
-          </ul>
+  app.innerHTML = '';
+  render(COLLECTION);
+})();
+</script>
 
-          <hr class="hr-footer" data-content="X">
+<script>
+function render(COLLECTION) {
+(function () {
 
-          <footer class="footer">
-            <div class="tagline">
-              Copyright etc etc
-            </div>
-          </footer>
-        </div>
-      </div>
-    </main>
-  </body>
+  // ── HELPERS ─────────────────────────────────────────────────
+  function isDouble(pick) { return Array.isArray(pick); }
+  function toArray(pick)  { return isDouble(pick) ? pick : [pick]; }
+
+  const SPOTIFY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>`;
+
+  // ── CACHE LAYER ─────────────────────────────────────────────
+  // Two separate caches: covers (mbcaa_v2_) and Spotify (mbspot_v1_)
+  // Storing 'NONE' means "looked, found nothing" — avoids repeat API hits.
+
+  function coverKey(artist, title) {
+    return 'mbcaa_v2_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
+  }
+  function spotKey(artist, title) {
+    return 'mbspot_v1_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
+  }
+  // cacheKey used for DOM data-key / row IDs (same as coverKey)
+  function cacheKey(artist, title) { return coverKey(artist, title); }
+
+  function getLS(k)    { try { return localStorage.getItem(k); }    catch { return null; } }
+  function setLS(k, v) { try { localStorage.setItem(k, v); }        catch {} }
+
+  // ── SPOTIFY FALLBACK DEEP LINK ───────────────────────────────
+  function spotifySearchUrl(artist, title) {
+    return `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`;
+  }
+
+  // ── MAIN FETCH: cover + Spotify in one MusicBrainz pass ─────
+  async function fetchAlbumData(artist, title) {
+    const covCached = getLS(coverKey(artist, title));
+    const spotCached = getLS(spotKey(artist, title));
+    if (covCached !== null && spotCached !== null) {
+      return {
+        cover:   covCached   === 'NONE' ? null : covCached,
+        spotify: spotCached  === 'NONE' ? spotifySearchUrl(artist, title) : spotCached,
+        fromCache: true,
+      };
+    }
+
+    try {
+      // Step 1: Search MB for candidate releases
+      const query = encodeURIComponent(`artist:"${artist}" release:"${title}"`);
+      const mbRes = await fetch(`https://musicbrainz.org/ws/2/release/?query=${query}&limit=5&fmt=json`);
+      if (!mbRes.ok) throw new Error(`MB search ${mbRes.status}`);
+      const { releases = [] } = await mbRes.json();
+      if (!releases.length) {
+        setLS(coverKey(artist, title), 'NONE');
+        setLS(spotKey(artist, title),  'NONE');
+        return { cover: null, spotify: spotifySearchUrl(artist, title) };
+      }
+
+      let cover = null;
+      let spotify = null;
+
+      // Step 2: Try each release until we have both cover + Spotify
+      for (const release of releases.slice(0, 5)) {
+        const mbid = release.id;
+
+        // 2a: Cover Art Archive
+        if (!cover) {
+          try {
+            const caaRes = await fetch(`https://coverartarchive.org/release/${mbid}`);
+            if (caaRes.ok) {
+              const caaData = await caaRes.json();
+              const front = caaData.images?.find(i => i.front) || caaData.images?.[0];
+              const url = front?.thumbnails?.['500']
+                       || front?.thumbnails?.large
+                       || front?.thumbnails?.small
+                       || front?.image;
+              if (url) cover = url;
+            }
+          } catch {}
+        }
+
+        // 2b: URL relationships for Spotify link
+        if (!spotify) {
+          try {
+            const relRes = await fetch(`https://musicbrainz.org/ws/2/release/${mbid}?inc=url-rels&fmt=json`);
+            if (relRes.ok) {
+              const relData = await relRes.json();
+              const spotRel = (relData.relations || []).find(r =>
+                r.type === 'streaming music' &&
+                r.url?.resource?.includes('open.spotify.com/album')
+              );
+              if (spotRel) spotify = spotRel.url.resource;
+            }
+          } catch {}
+        }
+
+        if (cover && spotify) break;
+      }
+
+      setLS(coverKey(artist, title), cover   || 'NONE');
+      setLS(spotKey(artist, title),  spotify || 'NONE');
+
+      return {
+        cover,
+        spotify: spotify || spotifySearchUrl(artist, title),
+      };
+
+    } catch (e) {
+      console.warn(`fetchAlbumData failed: ${artist} – ${title}:`, e.message);
+      return { cover: null, spotify: spotifySearchUrl(artist, title) };
+    }
+  }
+
+  // ── APPLY COVER ──────────────────────────────────────────────
+  function applyCovers(key, url) {
+    if (!url) return;
+    document.querySelectorAll(`img[data-key="${key}"]`).forEach(img => {
+      img.onload = () => {
+        img.style.display = 'block';
+        const shimmer = img.previousElementSibling;
+        if (shimmer?.classList.contains('shimmer')) shimmer.style.display = 'none';
+      };
+      img.onerror = () => {
+        const shimmer = img.previousElementSibling;
+        if (shimmer?.classList.contains('shimmer')) shimmer.style.display = 'none';
+      };
+      img.src = url;
+    });
+  }
+
+  // ── APPLY SPOTIFY LINK ───────────────────────────────────────
+  // Injects Spotify button into overlays and table cells keyed by data-spotkey
+  function applySpotify(key, url) {
+    if (!url) return;
+    // Grid overlay buttons
+    document.querySelectorAll(`.ov-spotify-slot[data-spotkey="${key}"]`).forEach(slot => {
+      slot.innerHTML = `<a class="ov-spotify" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${SPOTIFY_ICON} Spotify</a>`;
+    });
+    // Table cells
+    document.querySelectorAll(`.td-spotify[data-spotkey="${key}"]`).forEach(cell => {
+      cell.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${SPOTIFY_ICON} Listen</a>`;
+    });
+  }
+
+  // ── SCROLL TO ROW ────────────────────────────────────────────
+  function scrollToRow(key) {
+    const row = document.getElementById(`row-${key}`);
+    if (!row) return;
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.classList.remove('row-highlight');
+    void row.offsetWidth;
+    row.classList.add('row-highlight');
+  }
+
+  // ── IMG PAIR ─────────────────────────────────────────────────
+  const toResolve = new Map();
+
+  function makeImgPair(pick) {
+    const key = cacheKey(pick.artist, pick.title);
+    toResolve.set(key, { artist: pick.artist, title: pick.title });
+    const shimmer = document.createElement('div');
+    shimmer.className = 'shimmer';
+    const img = document.createElement('img');
+    img.alt = `${pick.artist} – ${pick.title}`;
+    img.dataset.key = key;
+    img.addEventListener('error', () => { shimmer.style.display = 'none'; });
+    return { shimmer, img };
+  }
+
+  // ── SPOTIFY SLOT (overlay placeholder) ───────────────────────
+  function makeSpotSlot(pick) {
+    const key = cacheKey(pick.artist, pick.title);
+    const slot = document.createElement('div');
+    slot.className = 'ov-spotify-slot';
+    slot.dataset.spotkey = key;
+    return slot;
+  }
+
+  // ── CARD BUILDERS ───────────────────────────────────────────
+  function makeSingleCard(pick, person) {
+    const card = document.createElement('div');
+    card.className = 'album-card is-linked';
+    const key = cacheKey(pick.artist, pick.title);
+    const { shimmer, img } = makeImgPair(pick);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'album-overlay';
+
+    const info = document.createElement('div');
+    info.innerHTML = `
+      <div class="ov-person">${person}</div>
+      <div class="ov-title">${pick.title}</div>
+      <div class="ov-artist">${pick.artist}</div>
+      ${pick.year ? `<div class="ov-year">${pick.year}</div>` : ''}
+    `;
+    overlay.appendChild(info);
+    overlay.appendChild(makeSpotSlot(pick));
+
+    card.appendChild(shimmer);
+    card.appendChild(img);
+    card.appendChild(overlay);
+    card.addEventListener('click', () => scrollToRow(key));
+    return card;
+  }
+
+  function makeSplitCard(picks, person) {
+    const [pickA, pickB] = picks;
+    const card = document.createElement('div');
+    card.className = 'album-card--split is-linked';
+
+    const keyA = cacheKey(pickA.artist, pickA.title);
+    const keyB = cacheKey(pickB.artist, pickB.title);
+
+    const halfA = document.createElement('div');
+    halfA.className = 'split-half split-half--a';
+    const { shimmer: shimA, img: imgA } = makeImgPair(pickA);
+    halfA.appendChild(shimA); halfA.appendChild(imgA);
+    halfA.addEventListener('click', (e) => { e.stopPropagation(); scrollToRow(keyA); });
+
+    const halfB = document.createElement('div');
+    halfB.className = 'split-half split-half--b';
+    const { shimmer: shimB, img: imgB } = makeImgPair(pickB);
+    halfB.appendChild(shimB); halfB.appendChild(imgB);
+    halfB.addEventListener('click', (e) => { e.stopPropagation(); scrollToRow(keyB); });
+
+    const overlay = document.createElement('div');
+    overlay.className = 'split-overlay';
+
+    const header = document.createElement('div');
+    header.className = 'ov-person';
+    header.textContent = `${person} · double`;
+    overlay.appendChild(header);
+
+    [pickA, pickB].forEach(pick => {
+      const entry = document.createElement('div');
+      entry.className = 'split-entry';
+      entry.innerHTML = `
+        <div class="ov-title">${pick.title}</div>
+        <div class="ov-artist">${pick.artist}</div>
+        ${pick.year ? `<div class="ov-year">${pick.year}</div>` : ''}
+      `;
+      entry.appendChild(makeSpotSlot(pick));
+      overlay.appendChild(entry);
+    });
+
+    card.appendChild(halfA); card.appendChild(halfB); card.appendChild(overlay);
+    return card;
+  }
+
+  function makeEmptyCard() {
+    const card = document.createElement('div');
+    card.className = 'album-card album-card--empty';
+    const empty = document.createElement('div');
+    empty.className = 'empty-slot';
+    empty.textContent = '—';
+    card.appendChild(empty);
+    return card;
+  }
+
+  // ── COUNTS ──────────────────────────────────────────────────
+  const roundCount = Math.max(...COLLECTION.map(e => e.picks.length));
+  const people = COLLECTION.map(e => e.person);
+  let totalPicks = 0;
+  COLLECTION.forEach(e => e.picks.forEach(p => { if (p) totalPicks += toArray(p).length; }));
+
+  // ── BUILD GRID ──────────────────────────────────────────────
+  const app = document.getElementById('app');
+  const grid = document.createElement('div');
+  grid.className = 'rounds-grid';
+
+  for (let r = 0; r < roundCount; r++) {
+    const divider = document.createElement('div');
+    divider.className = 'round-divider';
+    divider.innerHTML = `<span>Round ${r + 1}</span><hr>`;
+    grid.appendChild(divider);
+    COLLECTION.forEach((entry) => {
+      const pick = entry.picks[r] ?? null;
+      if (!pick)               grid.appendChild(makeEmptyCard());
+      else if (isDouble(pick)) grid.appendChild(makeSplitCard(pick, entry.person));
+      else                     grid.appendChild(makeSingleCard(pick, entry.person));
+    });
+  }
+  app.appendChild(grid);
+
+  // ── BUILD TABLE ─────────────────────────────────────────────
+  const tableSection = document.getElementById('table-section');
+  const h2 = document.createElement('h2');
+  h2.textContent = 'All Picks';
+  tableSection.appendChild(h2);
+
+  const table = document.createElement('table');
+  table.className = 'picks-table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th></th>
+        <th>Week</th>
+        <th>Round</th>
+        <th>Person</th>
+        <th>Artist</th>
+        <th>Album</th>
+        <th>Year</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  `;
+  tableSection.appendChild(table);
+  const tbody = table.querySelector('#table-body');
+
+  const allRows = [];
+  for (let r = 0; r < roundCount; r++) {
+    COLLECTION.forEach((entry) => {
+      const raw = entry.picks[r] ?? null;
+      if (!raw) {
+        allRows.push({ pick: null, person: entry.person, round: r + 1, double: false });
+      } else {
+        toArray(raw).forEach(pick => {
+          allRows.push({ pick, person: entry.person, round: r + 1, double: isDouble(raw) });
+        });
+      }
+    });
+  }
+  allRows.sort((a, b) => (a.pick?.week ?? Infinity) - (b.pick?.week ?? Infinity));
+
+  allRows.forEach(({ pick, person, round, double: dbl }) => {
+    const tr = document.createElement('tr');
+    if (pick) tr.id = `row-${cacheKey(pick.artist, pick.title)}`;
+
+    if (!pick) {
+      tr.classList.add('row-empty');
+      tr.innerHTML = `
+        <td><div class="table-thumb-empty">—</div></td>
+        <td class="td-week">—</td>
+        <td class="td-round">R${round}</td>
+        <td class="td-person">${person}</td>
+        <td class="td-none" colspan="4">No submission</td>
+      `;
+    } else {
+      if (dbl) tr.classList.add('row-double');
+      const key = cacheKey(pick.artist, pick.title);
+
+      const thumbTd = document.createElement('td');
+      const { shimmer, img } = makeImgPair(pick);
+      shimmer.className = 'shimmer table-thumb-shimmer';
+      img.className = 'table-thumb';
+      thumbTd.appendChild(shimmer); thumbTd.appendChild(img);
+      tr.appendChild(thumbTd);
+
+      const weekTd   = document.createElement('td'); weekTd.className   = 'td-week';   weekTd.textContent   = pick.week ?? '—';
+      const roundTd  = document.createElement('td'); roundTd.className  = 'td-round';  roundTd.textContent  = `R${round}`;
+      const personTd = document.createElement('td'); personTd.className = 'td-person'; personTd.textContent = person;
+      if (dbl) personTd.innerHTML += `<span class="td-double-badge">double</span>`;
+      const artistTd = document.createElement('td'); artistTd.className = 'td-artist'; artistTd.textContent = pick.artist;
+      const albumTd  = document.createElement('td'); albumTd.className  = 'td-album';  albumTd.textContent  = pick.title;
+      const yearTd   = document.createElement('td'); yearTd.className   = 'td-year';   yearTd.textContent   = pick.year ?? '—';
+
+      // Spotify cell — shows a pending state until resolved
+      const spotTd = document.createElement('td');
+      spotTd.className = 'td-spotify';
+      spotTd.dataset.spotkey = key;
+      spotTd.innerHTML = `<span class="td-spotify-pending">…</span>`;
+
+      tr.appendChild(weekTd); tr.appendChild(roundTd); tr.appendChild(personTd);
+      tr.appendChild(artistTd); tr.appendChild(albumTd); tr.appendChild(yearTd);
+      tr.appendChild(spotTd);
+    }
+    tbody.appendChild(tr);
+  });
+
+  // ── HEADER META ─────────────────────────────────────────────
+  document.getElementById('header-meta').textContent =
+    `${people.length} people · ${roundCount} rounds · ${totalPicks} picks`;
+
+  // ── RESOLVE COVERS + SPOTIFY ─────────────────────────────────
+  // Each unique pick is fetched once. Cached entries are instant.
+  // Uncached entries throttled to 1 per 1.1s (MusicBrainz rate limit).
+  // Each fetch now also grabs the Spotify URL from MB url-rels.
+  const queue = [...toResolve.entries()];
+  let qi = 0;
+
+  function resolveNext() {
+    if (qi >= queue.length) return;
+    const [key, { artist, title }] = queue[qi++];
+
+    const covCached  = getLS(coverKey(artist, title));
+    const spotCached = getLS(spotKey(artist, title));
+
+    if (covCached !== null && spotCached !== null) {
+      // Both cached — apply immediately, no delay
+      applyCovers(key, covCached  === 'NONE' ? null : covCached);
+      applySpotify(key, spotCached === 'NONE' ? spotifySearchUrl(artist, title) : spotCached);
+      resolveNext();
+      return;
+    }
+
+    // At least one needs fetching — hit the API
+    fetchAlbumData(artist, title).then(({ cover, spotify }) => {
+      applyCovers(key, cover);
+      applySpotify(key, spotify);
+      setTimeout(resolveNext, 1100);
+    });
+  }
+
+  resolveNext();
+
+})();
+} // end render()
+</script>
+
+</body>
 </html>
