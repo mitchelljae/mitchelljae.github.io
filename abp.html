@@ -834,10 +834,13 @@ function render(COLLECTION) {
   function updateFeaturedLinks(key) {
     const linksEl = document.querySelector(`.featured-links[data-spotkey="${key}"]`);
     if (!linksEl) return;
-    const spotRaw  = getLS(spotKey(...keyToArtistTitle(key)));
-    const appleRaw = getLS(appleKey(...keyToArtistTitle(key)));
-    const spotUrl  = spotRaw  && spotRaw  !== 'NONE' ? spotRaw  : null;
-    const appleUrl = appleRaw && appleRaw !== 'NONE' ? appleRaw : null;
+    const [artist, title] = keyToArtistTitle(key);
+    if (!artist) return;
+    const spotRaw  = getLS(spotKey(artist, title));
+    const appleRaw = getLS(appleKey(artist, title));
+    // Use direct URL if found, otherwise fall back to search — always show buttons once resolved
+    const spotUrl  = spotRaw  !== null ? (spotRaw  === 'NONE' ? spotifySearchUrl(artist, title)   : spotRaw)  : null;
+    const appleUrl = appleRaw !== null ? (appleRaw === 'NONE' ? appleMusicSearchUrl(artist, title) : appleRaw) : null;
     const spotWrap  = linksEl.querySelector('.feat-spot-wrap');
     const appleWrap = linksEl.querySelector('.feat-apple-wrap');
     if (spotWrap  && spotUrl)  spotWrap.innerHTML  = `<a class="feat-spotify" href="${spotUrl}"  target="_blank" rel="noopener">${SPOTIFY_ICON} Spotify</a>`;
@@ -1181,6 +1184,7 @@ function render(COLLECTION) {
       applyCovers(key, covCached   === 'NONE' ? null : covCached);
       applySpotify(key, spotCached  === 'NONE' ? spotifySearchUrl(artist, title)   : spotCached);
       applyAppleMusic(key, appleCached === 'NONE' ? appleMusicSearchUrl(artist, title) : appleCached);
+      updateFeaturedLinks(key);
       resolveNext();
       return;
     }
@@ -1189,6 +1193,7 @@ function render(COLLECTION) {
       applyCovers(key, cover);
       applySpotify(key, spotify);
       applyAppleMusic(key, apple);
+      updateFeaturedLinks(key);
       setTimeout(resolveNext, 1100);
     });
   }
