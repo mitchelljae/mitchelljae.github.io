@@ -539,7 +539,7 @@ function render(COLLECTION) {
 
   // ── CACHE ────────────────────────────────────────────────────
   const b64      = s     => btoa(unescape(encodeURIComponent(s))).replace(/[^a-zA-Z0-9]/g, '');
-  const covKey   = (a,t) => 'lfm_v1_'     + b64(`${a}||${t}`);
+  const covKey   = (a,t,size='large') => `lfm_v1_${size}_` + b64(`${a}||${t}`);
   const spotKey  = (a,t) => 'mbspot_v1_'  + b64(`${a}||${t}`);
   const appleKey = (a,t) => 'mbapple_v1_' + b64(`${a}||${t}`);
   const cacheKey = covKey;
@@ -554,9 +554,11 @@ function render(COLLECTION) {
 
   // Last.fm returns images in sizes: small, medium, large, extralarge, mega
   // We want extralarge (300px) — swap to mega (600px) if preferred
-  function lfmBestImage(images) {
+  function lfmBestImage(images, prefer = 'large') {
     if (!Array.isArray(images)) return null;
-    const order = ['large', 'extralarge', 'mega', 'medium', 'small'];
+    const order = prefer === 'extralarge'
+      ? ['extralarge', 'mega', 'large', 'medium', 'small']
+      : ['large', 'extralarge', 'mega', 'medium', 'small'];
     for (const size of order) {
       const found = images.find(i => i.size === size);
       if (found?.['#text']) return found['#text'].replace(/^http:\/\//, 'https://');
@@ -567,8 +569,8 @@ function render(COLLECTION) {
   // ── API FETCH ────────────────────────────────────────────────
   // Cover: Last.fm album.getInfo (single call, fast, no rate limit issues)
   // Links: MusicBrainz release url-rels (Spotify / Apple Music live here)
-  async function fetchAlbumData(artist, title) {
-    const cc = getLS(covKey(artist, title));
+  async function fetchAlbumData(artist, title, size = 'large') {
+    const cc = getLS(covKey(artist, title, size));
     const sc = getLS(spotKey(artist, title));
     const ac = getLS(appleKey(artist, title));
 
@@ -590,7 +592,7 @@ function render(COLLECTION) {
           const res = await fetch(url);
           if (res.ok) {
             const data = await res.json();
-            cover = lfmBestImage(data?.album?.image) || null;
+            cover = lfmBestImage(data?.album?.image, size) || null;
           }
         } catch {}
       } else {
@@ -622,7 +624,7 @@ function render(COLLECTION) {
         apple   = ac === 'NONE' ? null : ac;
       }
 
-      setLS(covKey(artist, title),   cover   || 'NONE');
+      setLS(covKey(artist, title, size), cover   || 'NONE');
       setLS(spotKey(artist, title),  spotify || 'NONE');
       setLS(appleKey(artist, title), apple   || 'NONE');
 
@@ -929,8 +931,8 @@ function render(COLLECTION) {
   const queue = [...toResolve.entries()].filter(([k]) => k !== featuredKey);
   let qi = 0;
 
-  function fromCache(artist, title) {
-    const cc = getLS(covKey(artist, title));
+  function fromCache(artist, title, size = 'large') {
+    const cc = getLS(covKey(artist, title, size));
     const sc = getLS(spotKey(artist, title));
     const ac = getLS(appleKey(artist, title));
     if (cc === null || sc === null || ac === null) return null;
@@ -965,12 +967,12 @@ function render(COLLECTION) {
 
   if (featuredKey && featuredPick) {
     const { artist, title } = featuredPick;
-    const cached = fromCache(artist, title);
+    const cached = fromCache(artist, title, 'extralarge');
     if (cached) {
       applyAll(featuredKey, cached);
       resolveNext();
     } else {
-      fetchAlbumData(artist, title).then(data => {
+      fetchAlbumData(artist, title, 'extralarge').then(data => {
         applyAll(featuredKey, data);
         setTimeout(resolveNext, 1100);
       });
