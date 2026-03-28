@@ -11,14 +11,32 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #0d0d0d;
-      --surface: #141414;
-      --border:  #222;
-      --accent:  #e8ff00;
-      --muted:   #555;
-      --text:    #e8e8e8;
-      --label:   #888;
-      --gap:     4px;
+      --bg:          #0d0d0d;
+      --surface:     #141414;
+      --border:      #222;
+      --accent:      #e8ff00;
+      --muted:       #555;
+      --text:        #e8e8e8;
+      --label:       #888;
+      --gap:         4px;
+      --shimmer-a:   #1a1a1a;
+      --shimmer-b:   #272727;
+      --badge-text:  #000;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg:          #f2f0eb;
+        --surface:     #ffffff;
+        --border:      #ddd;
+        --accent:      #7a6f00;
+        --muted:       #aaa;
+        --text:        #1a1a1a;
+        --label:       #666;
+        --shimmer-a:   #e8e5df;
+        --shimmer-b:   #d8d4cc;
+        --badge-text:  #fff;
+      }
     }
 
     html, body {
@@ -171,6 +189,9 @@
       display: none;
       transition: transform 0.3s ease, filter 0.3s ease;
       filter: saturate(0.85);
+    }
+    @media (prefers-color-scheme: light) {
+      .album-card img { filter: saturate(1); }
     }
     .album-card:hover img { transform: scale(1.06); filter: saturate(1.1); }
 
@@ -336,7 +357,7 @@
       100% { background-position:  200% 0; }
     }
     .shimmer {
-      background: linear-gradient(90deg, #1a1a1a 25%, #272727 50%, #1a1a1a 75%);
+      background: linear-gradient(90deg, var(--shimmer-a) 25%, var(--shimmer-b) 50%, var(--shimmer-a) 75%);
       background-size: 200% 100%;
       animation: shimmer 1.4s infinite;
     }
@@ -434,7 +455,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 0.55rem;
       background: var(--accent);
-      color: #000;
+      color: var(--badge-text);
       padding: 1px 5px;
       border-radius: 2px;
       margin-left: 6px;
@@ -444,7 +465,7 @@
 
     /* ── ROW HIGHLIGHT (scroll target) ── */
     @keyframes rowflash {
-      0%   { background: rgba(232,255,0,0.18); }
+      0%   { background: color-mix(in srgb, var(--accent) 18%, transparent); }
       100% { background: transparent; }
     }
     .picks-table tbody tr.row-highlight {
