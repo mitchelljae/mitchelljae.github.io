@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Album Collection</title>
+  <title>ABP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
 
@@ -38,12 +38,19 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 40px;
     }
+    .header-text { display: flex; flex-direction: column; gap: 4px; }
     header h1 {
       font-family: 'Bebas Neue', sans-serif;
       font-size: clamp(2.4rem, 5vw, 4.5rem);
       letter-spacing: 0.04em;
       line-height: 1;
       color: var(--accent);
+    }
+    header .subtitle {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
     }
     header .meta {
       font-family: 'DM Mono', monospace;
@@ -449,93 +456,6 @@
     .album-card--split.is-linked { cursor: pointer; }
     .split-half.is-linked        { cursor: pointer; }
 
-    /* ── SPOTIFY LINK ── */
-    .ov-spotify {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      margin-top: 5px;
-      padding: 3px 7px;
-      background: #1DB954;
-      border-radius: 20px;
-      text-decoration: none;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.55rem;
-      color: #000;
-      font-weight: 400;
-      letter-spacing: 0.04em;
-      pointer-events: all;
-      transition: background 0.15s, transform 0.15s;
-      align-self: flex-start;
-    }
-    .ov-spotify:hover { background: #1ed760; transform: scale(1.05); }
-    .ov-spotify svg { width: 10px; height: 10px; flex-shrink: 0; }
-
-    /* Spotify cell in table */
-    .td-spotify a {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 8px;
-      background: #1DB954;
-      border-radius: 20px;
-      text-decoration: none;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: #000;
-      transition: background 0.15s;
-    }
-    .td-spotify a:hover { background: #1ed760; }
-    .td-spotify a svg { width: 11px; height: 11px; }
-    .td-spotify-pending {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-    }
-
-    /* ── APPLE MUSIC LINK ── */
-    .ov-apple {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      margin-top: 4px;
-      padding: 3px 7px;
-      background: #fc3c44;
-      border-radius: 20px;
-      text-decoration: none;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.55rem;
-      color: #fff;
-      font-weight: 400;
-      letter-spacing: 0.04em;
-      pointer-events: all;
-      transition: background 0.15s, transform 0.15s;
-      align-self: flex-start;
-    }
-    .ov-apple:hover { background: #ff4d56; transform: scale(1.05); }
-    .ov-apple svg { width: 10px; height: 10px; flex-shrink: 0; }
-
-    .td-apple a {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 8px;
-      background: #fc3c44;
-      border-radius: 20px;
-      text-decoration: none;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: #fff;
-      transition: background 0.15s;
-    }
-    .td-apple a:hover { background: #ff4d56; }
-    .td-apple a svg { width: 11px; height: 11px; }
-    .td-apple-pending {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-    }
-
     /* ── FOOTER ── */
     footer {
       text-align: center;
@@ -550,7 +470,10 @@
 <body>
 
 <header>
-  <h1>Collection</h1>
+  <div class="header-text">
+    <h1>ABP</h1>
+    <span class="subtitle">Last Updated: <span id="last-updated"></span></span>
+  </div>
   <span class="meta" id="header-meta"></span>
 </header>
 
@@ -1096,8 +1019,6 @@ function render(COLLECTION) {
         <th>Artist</th>
         <th>Album</th>
         <th>Year</th>
-        <th></th>
-        <th></th>
       </tr>
     </thead>
     <tbody id="table-body"></tbody>
@@ -1142,22 +1063,8 @@ function render(COLLECTION) {
       const albumTd  = document.createElement('td'); albumTd.className  = 'td-album';  albumTd.textContent  = pick.title;
       const yearTd   = document.createElement('td'); yearTd.className   = 'td-year';   yearTd.textContent   = pick.year ?? '—';
 
-      // Spotify cell
-      const spotTd = document.createElement('td');
-      spotTd.className = 'td-spotify';
-      spotTd.dataset.spotkey = key;
-      spotTd.innerHTML = `<span class="td-spotify-pending">…</span>`;
-
-      // Apple Music cell
-      const appleTd = document.createElement('td');
-      appleTd.className = 'td-apple';
-      appleTd.dataset.spotkey = key;
-      appleTd.innerHTML = `<span class="td-apple-pending">…</span>`;
-
       tr.appendChild(weekTd); tr.appendChild(roundTd); tr.appendChild(personTd);
       tr.appendChild(artistTd); tr.appendChild(albumTd); tr.appendChild(yearTd);
-      tr.appendChild(spotTd);
-      tr.appendChild(appleTd);
     tbody.appendChild(tr);
   });
 
@@ -1204,6 +1111,8 @@ function render(COLLECTION) {
 } // end render()
 
 document.getElementById('footer-year').textContent = new Date().getFullYear();
+const now = new Date();
+document.getElementById('last-updated').textContent = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 </script>
 
 </body>
