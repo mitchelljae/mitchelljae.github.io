@@ -470,7 +470,7 @@
 
 <main id="app"></main>
 <div class="table-section" id="table-section"></div>
-<footer id="footer">edit collection.csv to update · covers via MusicBrainz / Cover Art Archive</footer>
+<footer id="footer">edit albums.csv to update · covers via MusicBrainz / Cover Art Archive</footer>
 
 <script>
 // ============================================================
@@ -564,14 +564,14 @@ function parseCSV(text) {
 
   let COLLECTION;
   try {
-    const res = await fetch('collection.csv?v=' + Date.now());
+    const res = await fetch('albums.csv?v=' + Date.now());
     if (!res.ok) throw new Error(`Could not load collection.csv (HTTP ${res.status})`);
     COLLECTION = parseCSV(await res.text());
   } catch (e) {
     app.innerHTML = `
       <div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.8rem;color:#e05;">
         ✕ ${e.message}<br><br>
-        <span style="color:var(--muted)">Make sure collection.csv is in the same directory as index.html.</span>
+        <span style="color:var(--muted)">Make sure albums.csv is in the same directory as index.html.</span>
       </div>`;
     return;
   }
