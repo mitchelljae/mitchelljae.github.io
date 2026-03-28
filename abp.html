@@ -1120,60 +1120,65 @@ function render(COLLECTION) {
     `${people.length} people · ${roundCount} rounds · ${totalPicks} picks`;
 
   // ── RESOLVE COVERS + SPOTIFY ─────────────────────────────────
-  // Featured album is resolved first, completely outside the main queue,
-  // so it always loads before any grid card regardless of cache state.
-  // Remaining entries follow at 1 per 1.1s (MusicBrainz rate limit).
+  // Featured album is resolved in isolation first.
+  // The main queue starts only after featured has fully resolved.
+
   const featuredKey = featuredPick ? cacheKey(featuredPick.artist, featuredPick.title) : null;
 
-  // Main queue — everything except the featured key
+  // Main queue — deduplicated, featured key excluded
   const queue = [...toResolve.entries()].filter(([k]) => k !== featuredKey);
   let qi = 0;
+
+  function applyAll(key, artist, title, cover, spotify, apple) {
+    applyCovers(key, cover);
+    applySpotify(key, spotify);
+    applyAppleMusic(key, apple);
+    updateFeaturedLinks(key);
+  }
 
   function resolveNext() {
     if (qi >= queue.length) return;
     const [key, { artist, title }] = queue[qi++];
 
-    const covCached   = getLS(coverKey(artist, title));
-    const spotCached  = getLS(spotKey(artist, title));
-    const appleCached = getLS(appleKey(artist, title));
+    const cc = getLS(coverKey(artist, title));
+    const sc = getLS(spotKey(artist, title));
+    const ac = getLS(appleKey(artist, title));
 
-    if (covCached !== null && spotCached !== null && appleCached !== null) {
-      applyCovers(key, covCached   === 'NONE' ? null : covCached);
-      applySpotify(key, spotCached  === 'NONE' ? spotifySearchUrl(artist, title)   : spotCached);
-      applyAppleMusic(key, appleCached === 'NONE' ? appleMusicSearchUrl(artist, title) : appleCached);
-      updateFeaturedLinks(key);
-      resolveNext();
+    if (cc !== null && sc !== null && ac !== null) {
+      applyAll(key, artist, title,
+        cc === 'NONE' ? null : cc,
+        sc === 'NONE' ? spotifySearchUrl(artist, title) : sc,
+        ac === 'NONE' ? appleMusicSearchUrl(artist, title) : ac
+      );
+      resolveNext(); // cached — no delay needed
       return;
     }
 
     fetchAlbumData(artist, title).then(({ cover, spotify, apple }) => {
-      applyCovers(key, cover);
-      applySpotify(key, spotify);
-      applyAppleMusic(key, apple);
-      updateFeaturedLinks(key);
+      applyAll(key, artist, title, cover, spotify, apple);
       setTimeout(resolveNext, 1100);
     });
   }
 
-  // Resolve featured first, then kick off the main queue after
+  // ── FEATURED FIRST ───────────────────────────────────────────
   if (featuredKey && featuredPick) {
     const { artist, title } = featuredPick;
-    const covCached   = getLS(coverKey(artist, title));
-    const spotCached  = getLS(spotKey(artist, title));
-    const appleCached = getLS(appleKey(artist, title));
+    const cc = getLS(coverKey(artist, title));
+    const sc = getLS(spotKey(artist, title));
+    const ac = getLS(appleKey(artist, title));
 
-    if (covCached !== null && spotCached !== null && appleCached !== null) {
-      applyCovers(featuredKey, covCached   === 'NONE' ? null : covCached);
-      applySpotify(featuredKey, spotCached  === 'NONE' ? spotifySearchUrl(artist, title)   : spotCached);
-      applyAppleMusic(featuredKey, appleCached === 'NONE' ? appleMusicSearchUrl(artist, title) : appleCached);
-      updateFeaturedLinks(featuredKey);
+    if (cc !== null && sc !== null && ac !== null) {
+      // Cached — apply instantly, start queue with no delay
+      applyAll(featuredKey, artist, title,
+        cc === 'NONE' ? null : cc,
+        sc === 'NONE' ? spotifySearchUrl(artist, title) : sc,
+        ac === 'NONE' ? appleMusicSearchUrl(artist, title) : ac
+      );
       resolveNext();
     } else {
+      // Not cached — fetch featured, then start queue after rate-limit window
       fetchAlbumData(artist, title).then(({ cover, spotify, apple }) => {
-        applyCovers(featuredKey, cover);
-        applySpotify(featuredKey, spotify);
-        applyAppleMusic(featuredKey, apple);
-        updateFeaturedLinks(featuredKey);
+        applyAll(featuredKey, artist, title, cover, spotify, apple);
         setTimeout(resolveNext, 1100);
       });
     }
