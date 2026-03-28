@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -407,6 +407,49 @@
       color: var(--muted);
     }
 
+    /* ── APPLE MUSIC LINK ── */
+    .ov-apple {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      padding: 3px 7px;
+      background: #fc3c44;
+      border-radius: 20px;
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      color: #fff;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      pointer-events: all;
+      transition: background 0.15s, transform 0.15s;
+      align-self: flex-start;
+    }
+    .ov-apple:hover { background: #ff4d56; transform: scale(1.05); }
+    .ov-apple svg { width: 10px; height: 10px; flex-shrink: 0; }
+
+    .td-apple a {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: #fc3c44;
+      border-radius: 20px;
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: #fff;
+      transition: background 0.15s;
+    }
+    .td-apple a:hover { background: #ff4d56; }
+    .td-apple a svg { width: 11px; height: 11px; }
+    .td-apple-pending {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+    }
+
     /* ── FOOTER ── */
     footer {
       text-align: center;
@@ -431,24 +474,17 @@
 
 <script>
 // ============================================================
-//  CSV LOADER
-//  Fetches collection.csv from the same directory, parses it,
-//  and builds the COLLECTION structure expected by the renderer.
+//  CSV PARSER
+//  Converts a CSV string into the COLLECTION structure
+//  expected by the renderer.
 //
 //  CSV columns (header row required):
 //    person, round, week, title, artist, year, double, note
 //
-//  double = true means this row shares its grid cell with another
-//  row that has the same person + round (max 2 per cell).
+//  double = true means this row shares its grid cell with
+//  another row (same person + round) — renders as split card.
 //  note   = optional, ignored by renderer.
 // ============================================================
-
-async function loadCollection() {
-  const res = await fetch('collection.csv?v=' + Date.now());
-  if (!res.ok) throw new Error(`Could not load collection.csv (HTTP ${res.status})`);
-  const text = await res.text();
-  return parseCSV(text);
-}
 
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
@@ -528,7 +564,9 @@ function parseCSV(text) {
 
   let COLLECTION;
   try {
-    COLLECTION = await loadCollection();
+    const res = await fetch('collection.csv?v=' + Date.now());
+    if (!res.ok) throw new Error(`Could not load collection.csv (HTTP ${res.status})`);
+    COLLECTION = parseCSV(await res.text());
   } catch (e) {
     app.innerHTML = `
       <div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.8rem;color:#e05;">
@@ -553,8 +591,10 @@ function render(COLLECTION) {
 
   const SPOTIFY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>`;
 
+  const APPLE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 00-1.877-.726 10.496 10.496 0 00-1.564-.15c-.04-.003-.083-.01-.124-.013H5.986c-.152.01-.303.017-.455.026C4.786.07 4.043.15 3.34.428 2.004.958 1.04 1.88.475 3.208A4.95 4.95 0 00.08 4.92C.026 5.316 0 5.718 0 6.122v11.76c.009.337.026.673.080 1.006.183 1.189.608 2.26 1.39 3.147.943 1.067 2.148 1.6 3.524 1.828.427.07.863.1 1.298.106.15.003.3.006.45.006h11.517c.171 0 .342-.003.513-.009.5-.018.993-.073 1.476-.2 1.476-.388 2.647-1.2 3.45-2.495.47-.762.735-1.6.844-2.493.055-.437.077-.878.077-1.32V6.124zm-9.993 2.15c0-1.78 1.46-3.22 3.24-3.22s3.24 1.44 3.24 3.22c0 1.78-1.46 3.22-3.24 3.22s-3.24-1.44-3.24-3.22zm3.24 9.68c-3.57 0-6.46-2.89-6.46-6.46s2.89-6.46 6.46-6.46c.9 0 1.76.18 2.54.52V4.27c-.82-.2-1.67-.3-2.54-.3-4.83 0-8.75 3.92-8.75 8.75s3.92 8.75 8.75 8.75c.87 0 1.72-.1 2.54-.3v-1.29c-.78.34-1.64.52-2.54.52z"/></svg>`;
+
   // ── CACHE LAYER ─────────────────────────────────────────────
-  // Two separate caches: covers (mbcaa_v2_) and Spotify (mbspot_v1_)
+  // Three separate caches: covers, Spotify, Apple Music.
   // Storing 'NONE' means "looked, found nothing" — avoids repeat API hits.
 
   function coverKey(artist, title) {
@@ -563,31 +603,38 @@ function render(COLLECTION) {
   function spotKey(artist, title) {
     return 'mbspot_v1_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
   }
+  function appleKey(artist, title) {
+    return 'mbapple_v1_' + btoa(unescape(encodeURIComponent(`${artist}||${title}`))).replace(/[^a-zA-Z0-9]/g, '');
+  }
   // cacheKey used for DOM data-key / row IDs (same as coverKey)
   function cacheKey(artist, title) { return coverKey(artist, title); }
 
   function getLS(k)    { try { return localStorage.getItem(k); }    catch { return null; } }
   function setLS(k, v) { try { localStorage.setItem(k, v); }        catch {} }
 
-  // ── SPOTIFY FALLBACK DEEP LINK ───────────────────────────────
   function spotifySearchUrl(artist, title) {
     return `https://open.spotify.com/search/${encodeURIComponent(artist + ' ' + title)}`;
   }
+  function appleMusicSearchUrl(artist, title) {
+    return `https://music.apple.com/search?term=${encodeURIComponent(artist + ' ' + title)}`;
+  }
 
-  // ── MAIN FETCH: cover + Spotify in one MusicBrainz pass ─────
+  // ── MAIN FETCH: cover + Spotify + Apple Music in one MB pass ─
   async function fetchAlbumData(artist, title) {
-    const covCached = getLS(coverKey(artist, title));
-    const spotCached = getLS(spotKey(artist, title));
-    if (covCached !== null && spotCached !== null) {
+    const covCached   = getLS(coverKey(artist, title));
+    const spotCached  = getLS(spotKey(artist, title));
+    const appleCached = getLS(appleKey(artist, title));
+
+    if (covCached !== null && spotCached !== null && appleCached !== null) {
       return {
         cover:   covCached   === 'NONE' ? null : covCached,
-        spotify: spotCached  === 'NONE' ? spotifySearchUrl(artist, title) : spotCached,
+        spotify: spotCached  === 'NONE' ? spotifySearchUrl(artist, title)   : spotCached,
+        apple:   appleCached === 'NONE' ? appleMusicSearchUrl(artist, title) : appleCached,
         fromCache: true,
       };
     }
 
     try {
-      // Step 1: Search MB for candidate releases
       const query = encodeURIComponent(`artist:"${artist}" release:"${title}"`);
       const mbRes = await fetch(`https://musicbrainz.org/ws/2/release/?query=${query}&limit=5&fmt=json`);
       if (!mbRes.ok) throw new Error(`MB search ${mbRes.status}`);
@@ -595,61 +642,61 @@ function render(COLLECTION) {
       if (!releases.length) {
         setLS(coverKey(artist, title), 'NONE');
         setLS(spotKey(artist, title),  'NONE');
-        return { cover: null, spotify: spotifySearchUrl(artist, title) };
+        setLS(appleKey(artist, title), 'NONE');
+        return { cover: null, spotify: spotifySearchUrl(artist, title), apple: appleMusicSearchUrl(artist, title) };
       }
 
-      let cover = null;
-      let spotify = null;
+      let cover = null, spotify = null, apple = null;
 
-      // Step 2: Try each release until we have both cover + Spotify
       for (const release of releases.slice(0, 5)) {
         const mbid = release.id;
 
-        // 2a: Cover Art Archive
+        // Cover Art Archive
         if (!cover) {
           try {
             const caaRes = await fetch(`https://coverartarchive.org/release/${mbid}`);
             if (caaRes.ok) {
               const caaData = await caaRes.json();
               const front = caaData.images?.find(i => i.front) || caaData.images?.[0];
-              const url = front?.thumbnails?.['500']
-                       || front?.thumbnails?.large
-                       || front?.thumbnails?.small
-                       || front?.image;
+              const url = front?.thumbnails?.['500'] || front?.thumbnails?.large
+                       || front?.thumbnails?.small  || front?.image;
               if (url) cover = url;
             }
           } catch {}
         }
 
-        // 2b: URL relationships for Spotify link
-        if (!spotify) {
+        // URL relationships — Spotify + Apple Music in one call
+        if (!spotify || !apple) {
           try {
             const relRes = await fetch(`https://musicbrainz.org/ws/2/release/${mbid}?inc=url-rels&fmt=json`);
             if (relRes.ok) {
-              const relData = await relRes.json();
-              const spotRel = (relData.relations || []).find(r =>
-                r.type === 'streaming music' &&
-                r.url?.resource?.includes('open.spotify.com/album')
-              );
-              if (spotRel) spotify = spotRel.url.resource;
+              const { relations = [] } = await relRes.json();
+              for (const r of relations) {
+                const res = r.url?.resource || '';
+                if (!spotify && res.includes('open.spotify.com/album')) spotify = res;
+                // Apple Music stores links as both itunes.apple.com and music.apple.com
+                if (!apple && (res.includes('music.apple.com') || res.includes('itunes.apple.com'))) apple = res;
+              }
             }
           } catch {}
         }
 
-        if (cover && spotify) break;
+        if (cover && spotify && apple) break;
       }
 
       setLS(coverKey(artist, title), cover   || 'NONE');
       setLS(spotKey(artist, title),  spotify || 'NONE');
+      setLS(appleKey(artist, title), apple   || 'NONE');
 
       return {
         cover,
         spotify: spotify || spotifySearchUrl(artist, title),
+        apple:   apple   || appleMusicSearchUrl(artist, title),
       };
 
     } catch (e) {
       console.warn(`fetchAlbumData failed: ${artist} – ${title}:`, e.message);
-      return { cover: null, spotify: spotifySearchUrl(artist, title) };
+      return { cover: null, spotify: spotifySearchUrl(artist, title), apple: appleMusicSearchUrl(artist, title) };
     }
   }
 
@@ -671,16 +718,24 @@ function render(COLLECTION) {
   }
 
   // ── APPLY SPOTIFY LINK ───────────────────────────────────────
-  // Injects Spotify button into overlays and table cells keyed by data-spotkey
   function applySpotify(key, url) {
     if (!url) return;
-    // Grid overlay buttons
     document.querySelectorAll(`.ov-spotify-slot[data-spotkey="${key}"]`).forEach(slot => {
       slot.innerHTML = `<a class="ov-spotify" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${SPOTIFY_ICON} Spotify</a>`;
     });
-    // Table cells
     document.querySelectorAll(`.td-spotify[data-spotkey="${key}"]`).forEach(cell => {
       cell.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${SPOTIFY_ICON} Listen</a>`;
+    });
+  }
+
+  // ── APPLY APPLE MUSIC LINK ───────────────────────────────────
+  function applyAppleMusic(key, url) {
+    if (!url) return;
+    document.querySelectorAll(`.ov-apple-slot[data-spotkey="${key}"]`).forEach(slot => {
+      slot.innerHTML = `<a class="ov-apple" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${APPLE_ICON} Apple Music</a>`;
+    });
+    document.querySelectorAll(`.td-apple[data-spotkey="${key}"]`).forEach(cell => {
+      cell.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${APPLE_ICON} Listen</a>`;
     });
   }
 
@@ -709,13 +764,23 @@ function render(COLLECTION) {
     return { shimmer, img };
   }
 
-  // ── SPOTIFY SLOT (overlay placeholder) ───────────────────────
-  function makeSpotSlot(pick) {
+  // ── SERVICE SLOTS (overlay placeholders) ────────────────────
+  function makeServiceSlots(pick) {
     const key = cacheKey(pick.artist, pick.title);
-    const slot = document.createElement('div');
-    slot.className = 'ov-spotify-slot';
-    slot.dataset.spotkey = key;
-    return slot;
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;margin-top:4px;';
+
+    const spotSlot = document.createElement('div');
+    spotSlot.className = 'ov-spotify-slot';
+    spotSlot.dataset.spotkey = key;
+
+    const appleSlot = document.createElement('div');
+    appleSlot.className = 'ov-apple-slot';
+    appleSlot.dataset.spotkey = key;
+
+    wrap.appendChild(spotSlot);
+    wrap.appendChild(appleSlot);
+    return wrap;
   }
 
   // ── CARD BUILDERS ───────────────────────────────────────────
@@ -736,7 +801,7 @@ function render(COLLECTION) {
       ${pick.year ? `<div class="ov-year">${pick.year}</div>` : ''}
     `;
     overlay.appendChild(info);
-    overlay.appendChild(makeSpotSlot(pick));
+    overlay.appendChild(makeServiceSlots(pick));
 
     card.appendChild(shimmer);
     card.appendChild(img);
@@ -781,7 +846,7 @@ function render(COLLECTION) {
         <div class="ov-artist">${pick.artist}</div>
         ${pick.year ? `<div class="ov-year">${pick.year}</div>` : ''}
       `;
-      entry.appendChild(makeSpotSlot(pick));
+      entry.appendChild(makeServiceSlots(pick));
       overlay.appendChild(entry);
     });
 
@@ -843,6 +908,7 @@ function render(COLLECTION) {
         <th>Album</th>
         <th>Year</th>
         <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody id="table-body"></tbody>
@@ -876,7 +942,7 @@ function render(COLLECTION) {
         <td class="td-week">—</td>
         <td class="td-round">R${round}</td>
         <td class="td-person">${person}</td>
-        <td class="td-none" colspan="4">No submission</td>
+        <td class="td-none" colspan="5">No submission</td>
       `;
     } else {
       if (dbl) tr.classList.add('row-double');
@@ -897,15 +963,22 @@ function render(COLLECTION) {
       const albumTd  = document.createElement('td'); albumTd.className  = 'td-album';  albumTd.textContent  = pick.title;
       const yearTd   = document.createElement('td'); yearTd.className   = 'td-year';   yearTd.textContent   = pick.year ?? '—';
 
-      // Spotify cell — shows a pending state until resolved
+      // Spotify cell
       const spotTd = document.createElement('td');
       spotTd.className = 'td-spotify';
       spotTd.dataset.spotkey = key;
       spotTd.innerHTML = `<span class="td-spotify-pending">…</span>`;
 
+      // Apple Music cell
+      const appleTd = document.createElement('td');
+      appleTd.className = 'td-apple';
+      appleTd.dataset.spotkey = key;
+      appleTd.innerHTML = `<span class="td-apple-pending">…</span>`;
+
       tr.appendChild(weekTd); tr.appendChild(roundTd); tr.appendChild(personTd);
       tr.appendChild(artistTd); tr.appendChild(albumTd); tr.appendChild(yearTd);
       tr.appendChild(spotTd);
+      tr.appendChild(appleTd);
     }
     tbody.appendChild(tr);
   });
@@ -925,21 +998,22 @@ function render(COLLECTION) {
     if (qi >= queue.length) return;
     const [key, { artist, title }] = queue[qi++];
 
-    const covCached  = getLS(coverKey(artist, title));
-    const spotCached = getLS(spotKey(artist, title));
+    const covCached   = getLS(coverKey(artist, title));
+    const spotCached  = getLS(spotKey(artist, title));
+    const appleCached = getLS(appleKey(artist, title));
 
-    if (covCached !== null && spotCached !== null) {
-      // Both cached — apply immediately, no delay
-      applyCovers(key, covCached  === 'NONE' ? null : covCached);
-      applySpotify(key, spotCached === 'NONE' ? spotifySearchUrl(artist, title) : spotCached);
+    if (covCached !== null && spotCached !== null && appleCached !== null) {
+      applyCovers(key, covCached   === 'NONE' ? null : covCached);
+      applySpotify(key, spotCached  === 'NONE' ? spotifySearchUrl(artist, title)   : spotCached);
+      applyAppleMusic(key, appleCached === 'NONE' ? appleMusicSearchUrl(artist, title) : appleCached);
       resolveNext();
       return;
     }
 
-    // At least one needs fetching — hit the API
-    fetchAlbumData(artist, title).then(({ cover, spotify }) => {
+    fetchAlbumData(artist, title).then(({ cover, spotify, apple }) => {
       applyCovers(key, cover);
       applySpotify(key, spotify);
+      applyAppleMusic(key, apple);
       setTimeout(resolveNext, 1100);
     });
   }
