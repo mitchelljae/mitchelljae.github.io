@@ -801,7 +801,6 @@ function render(COLLECTION) {
       ${pick.year ? `<div class="ov-year">${pick.year}</div>` : ''}
     `;
     overlay.appendChild(info);
-    overlay.appendChild(makeServiceSlots(pick));
 
     card.appendChild(shimmer);
     card.appendChild(img);
@@ -846,7 +845,6 @@ function render(COLLECTION) {
         <div class="ov-artist">${pick.artist}</div>
         ${pick.year ? `<div class="ov-year">${pick.year}</div>` : ''}
       `;
-      entry.appendChild(makeServiceSlots(pick));
       overlay.appendChild(entry);
     });
 
