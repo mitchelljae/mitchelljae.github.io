@@ -830,19 +830,18 @@ function render(COLLECTION) {
     updateFeaturedLinks(key);
   }
 
-  // Populate featured links once we have at least one service URL resolved
+  // Populate featured links — called by both applySpotify and applyAppleMusic
   function updateFeaturedLinks(key) {
     const linksEl = document.querySelector(`.featured-links[data-spotkey="${key}"]`);
     if (!linksEl) return;
-    const spot  = getLS(spotKey(...keyToArtistTitle(key)));
-    const apple = getLS(appleKey(...keyToArtistTitle(key)));
-    // Build buttons for whichever are resolved
-    const spotUrl  = spot  && spot  !== 'NONE' ? spot  : null;
-    const appleUrl = apple && apple !== 'NONE' ? apple : null;
-    if (!spotUrl && !appleUrl) return;
-    linksEl.innerHTML = '';
-    if (spotUrl)  linksEl.innerHTML += `<a class="feat-spotify" href="${spotUrl}"  target="_blank" rel="noopener">${SPOTIFY_ICON} Spotify</a>`;
-    if (appleUrl) linksEl.innerHTML += `<a class="feat-apple"   href="${appleUrl}" target="_blank" rel="noopener">${APPLE_ICON} Apple Music</a>`;
+    const spotRaw  = getLS(spotKey(...keyToArtistTitle(key)));
+    const appleRaw = getLS(appleKey(...keyToArtistTitle(key)));
+    const spotUrl  = spotRaw  && spotRaw  !== 'NONE' ? spotRaw  : null;
+    const appleUrl = appleRaw && appleRaw !== 'NONE' ? appleRaw : null;
+    const spotWrap  = linksEl.querySelector('.feat-spot-wrap');
+    const appleWrap = linksEl.querySelector('.feat-apple-wrap');
+    if (spotWrap  && spotUrl)  spotWrap.innerHTML  = `<a class="feat-spotify" href="${spotUrl}"  target="_blank" rel="noopener">${SPOTIFY_ICON} Spotify</a>`;
+    if (appleWrap && appleUrl) appleWrap.innerHTML = `<a class="feat-apple"   href="${appleUrl}" target="_blank" rel="noopener">${APPLE_ICON} Apple Music</a>`;
   }
 
   // Reverse-lookup artist+title from a cacheKey isn't possible,
@@ -1034,7 +1033,10 @@ function render(COLLECTION) {
     const linksEl = document.createElement('div');
     linksEl.className = 'featured-links';
     linksEl.dataset.spotkey = featKey;
-    linksEl.innerHTML = `<span class="featured-links-pending">…</span>`;
+    linksEl.innerHTML = `
+      <span class="feat-spot-wrap"><span class="featured-links-pending">…</span></span>
+      <span class="feat-apple-wrap"><span class="featured-links-pending">…</span></span>
+    `;
 
     featured.appendChild(label);
     featured.appendChild(artWrap);
@@ -1116,19 +1118,9 @@ function render(COLLECTION) {
   allRows.sort((a, b) => (a.pick?.week ?? Infinity) - (b.pick?.week ?? Infinity));
 
   allRows.forEach(({ pick, person, round, double: dbl }) => {
+    if (!pick) return; // hide no-submission rows
     const tr = document.createElement('tr');
     if (pick) tr.id = `row-${cacheKey(pick.artist, pick.title)}`;
-
-    if (!pick) {
-      tr.classList.add('row-empty');
-      tr.innerHTML = `
-        <td><div class="table-thumb-empty">—</div></td>
-        <td class="td-week">—</td>
-        <td class="td-round">R${round}</td>
-        <td class="td-person">${person}</td>
-        <td class="td-none" colspan="5">No submission</td>
-      `;
-    } else {
       if (dbl) tr.classList.add('row-double');
       const key = cacheKey(pick.artist, pick.title);
 
@@ -1163,7 +1155,6 @@ function render(COLLECTION) {
       tr.appendChild(artistTd); tr.appendChild(albumTd); tr.appendChild(yearTd);
       tr.appendChild(spotTd);
       tr.appendChild(appleTd);
-    }
     tbody.appendChild(tr);
   });
 
