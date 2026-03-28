@@ -515,7 +515,7 @@ function parseCSV(text) {
       title:  fields[iT] || '',
       artist: fields[iA] || '',
       year:   parseInt(fields[iY], 10) || null,
-      double: (fields[iD] || '').toLowerCase() === 'true',
+      double: ['true', '1'].includes((fields[iD] || '').toLowerCase().trim()),
       note:   iN >= 0 ? (fields[iN] || '') : '',
     };
   }).filter(r => r.person && r.title && r.artist);
