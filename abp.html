@@ -681,13 +681,26 @@ function render(COLLECTION) {
       let cover = null, spotify = null, apple = null;
 
       // ── Step 1: Release group search → cover art ─────────────
+      // Only accept results with score ≥ 90 AND where the artist
+      // name loosely matches, to avoid wrong-album false positives.
       if (covCached === null) {
         try {
           const rgQuery = encodeURIComponent(`artist:"${artist}" releasegroup:"${title}"`);
           const rgRes = await fetch(`https://musicbrainz.org/ws/2/release-group/?query=${rgQuery}&limit=5&fmt=json`);
           if (rgRes.ok) {
             const { 'release-groups': rgs = [] } = await rgRes.json();
+            const artistLower = artist.toLowerCase();
+            const titleLower  = title.toLowerCase();
             for (const rg of rgs.slice(0, 5)) {
+              // Skip low-confidence matches
+              if ((rg.score ?? 0) < 90) continue;
+              // Cross-check artist name appears in the result's artist credits
+              const rgArtist = (rg['artist-credit'] || [])
+                .map(a => (a.artist?.name || a.name || '')).join(' ').toLowerCase();
+              if (!rgArtist.includes(artistLower) && !artistLower.includes(rgArtist.split(' ')[0])) continue;
+              // Cross-check title
+              if (!rg.title?.toLowerCase().includes(titleLower) &&
+                  !titleLower.includes(rg.title?.toLowerCase())) continue;
               try {
                 const caaRes = await fetch(`https://coverartarchive.org/release-group/${rg.id}`);
                 if (!caaRes.ok) continue;
