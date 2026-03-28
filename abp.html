@@ -556,7 +556,7 @@ function render(COLLECTION) {
   // We want extralarge (300px) — swap to mega (600px) if preferred
   function lfmBestImage(images) {
     if (!Array.isArray(images)) return null;
-    const order = ['extralarge', 'large', 'mega', 'medium', 'small'];
+    const order = ['large', 'extralarge', 'mega', 'medium', 'small'];
     for (const size of order) {
       const found = images.find(i => i.size === size);
       if (found?.['#text']) return found['#text'].replace(/^http:\/\//, 'https://');
