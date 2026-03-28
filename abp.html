@@ -539,7 +539,7 @@ function render(COLLECTION) {
 
   // ── CACHE ────────────────────────────────────────────────────
   const b64      = s     => btoa(unescape(encodeURIComponent(s))).replace(/[^a-zA-Z0-9]/g, '');
-  const covKey   = (a,t) => 'mbcaa_v3_'   + b64(`${a}||${t}`);
+  const covKey   = (a,t) => 'lfm_v1_'     + b64(`${a}||${t}`);
   const spotKey  = (a,t) => 'mbspot_v1_'  + b64(`${a}||${t}`);
   const appleKey = (a,t) => 'mbapple_v1_' + b64(`${a}||${t}`);
   const cacheKey = covKey;
@@ -550,16 +550,23 @@ function render(COLLECTION) {
   const spotifySearchUrl    = (a,t) => `https://open.spotify.com/search/${encodeURIComponent(a+' '+t)}`;
   const appleMusicSearchUrl = (a,t) => `https://music.apple.com/search?term=${encodeURIComponent(a+' '+t)}`;
 
-  function bestThumb(images) {
-    const front = images?.find(i => i.front) || images?.[0];
-    const url = front?.thumbnails?.small || front?.thumbnails?.['250']
-             || front?.thumbnails?.['500'] || front?.thumbnails?.large
-             || front?.image || null;
-    return url ? url.replace(/^http:\/\//, 'https://') : null;
+  const LFM_KEY = '87a20f2bb27ac8fc160a67d6d6655e68';
+
+  // Last.fm returns images in sizes: small, medium, large, extralarge, mega
+  // We want extralarge (300px) — swap to mega (600px) if preferred
+  function lfmBestImage(images) {
+    if (!Array.isArray(images)) return null;
+    const order = ['extralarge', 'large', 'mega', 'medium', 'small'];
+    for (const size of order) {
+      const found = images.find(i => i.size === size);
+      if (found?.['#text']) return found['#text'].replace(/^http:\/\//, 'https://');
+    }
+    return null;
   }
 
   // ── API FETCH ────────────────────────────────────────────────
-  // Cover via release-group CAA; links via release url-rels.
+  // Cover: Last.fm album.getInfo (single call, fast, no rate limit issues)
+  // Links: MusicBrainz release url-rels (Spotify / Apple Music live here)
   async function fetchAlbumData(artist, title) {
     const cc = getLS(covKey(artist, title));
     const sc = getLS(spotKey(artist, title));
@@ -576,32 +583,21 @@ function render(COLLECTION) {
     try {
       let cover = null, spotify = null, apple = null;
 
-      // Release-group → cover art
+      // Last.fm → cover art
       if (cc === null) {
         try {
-          const q = encodeURIComponent(`artist:"${artist}" releasegroup:"${title}"`);
-          const res = await fetch(`https://musicbrainz.org/ws/2/release-group/?query=${q}&limit=5&fmt=json`);
+          const url = `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LFM_KEY}&artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(title)}&format=json`;
+          const res = await fetch(url);
           if (res.ok) {
-            const al = artist.toLowerCase(), tl = title.toLowerCase();
-            for (const rg of (await res.json())['release-groups']?.slice(0, 5) ?? []) {
-              if ((rg.score ?? 0) < 90) continue;
-              const rgA = (rg['artist-credit'] || []).map(a => (a.artist?.name || a.name || '')).join(' ').toLowerCase();
-              if (!rgA.includes(al) && !al.includes(rgA.split(' ')[0])) continue;
-              if (!rg.title?.toLowerCase().includes(tl) && !tl.includes(rg.title?.toLowerCase())) continue;
-              try {
-                const caa = await fetch(`https://coverartarchive.org/release-group/${rg.id}`);
-                if (!caa.ok) continue;
-                const thumb = bestThumb((await caa.json()).images);
-                if (thumb) { cover = thumb; break; }
-              } catch { continue; }
-            }
+            const data = await res.json();
+            cover = lfmBestImage(data?.album?.image) || null;
           }
         } catch {}
       } else {
         cover = cc === 'NONE' ? null : cc;
       }
 
-      // Release → Spotify + Apple Music links
+      // MusicBrainz → Spotify + Apple Music links
       if (sc === null || ac === null) {
         try {
           const q = encodeURIComponent(`artist:"${artist}" release:"${title}"`);
