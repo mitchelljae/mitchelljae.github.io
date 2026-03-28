@@ -470,7 +470,7 @@
 
 <main id="app"></main>
 <div class="table-section" id="table-section"></div>
-<footer id="footer">edit albums.csv to update · covers via MusicBrainz / Cover Art Archive</footer>
+<footer id="footer">ABP · <span id="footer-year"></span> · covers via MusicBrainz / Cover Art Archive</footer>
 
 <script>
 // ============================================================
@@ -1020,6 +1020,8 @@ function render(COLLECTION) {
 
 })();
 } // end render()
+
+document.getElementById('footer-year').textContent = new Date().getFullYear();
 </script>
 
 </body>
