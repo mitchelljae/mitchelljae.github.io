@@ -559,13 +559,13 @@ function parseCSV(text) {
   const app = document.getElementById('app');
   app.innerHTML = `
     <div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);">
-      loading collection.csv…
+      loading albums.csv…
     </div>`;
 
   let COLLECTION;
   try {
     const res = await fetch('albums.csv?v=' + Date.now());
-    if (!res.ok) throw new Error(`Could not load collection.csv (HTTP ${res.status})`);
+    if (!res.ok) throw new Error(`Could not load albums.csv (HTTP ${res.status})`);
     COLLECTION = parseCSV(await res.text());
   } catch (e) {
     app.innerHTML = `
