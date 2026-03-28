@@ -668,8 +668,11 @@ function render(COLLECTION) {
             if (caaRes.ok) {
               const caaData = await caaRes.json();
               const front = caaData.images?.find(i => i.front) || caaData.images?.[0];
-              const url = front?.thumbnails?.['500'] || front?.thumbnails?.large
-                       || front?.thumbnails?.small  || front?.image;
+              const url = front?.thumbnails?.small
+                       || front?.thumbnails?.['250']
+                       || front?.thumbnails?.['500']
+                       || front?.thumbnails?.large
+                       || front?.image;
               if (url) cover = url;
             }
           } catch {}
@@ -1073,10 +1076,15 @@ function render(COLLECTION) {
     `${people.length} people · ${roundCount} rounds · ${totalPicks} picks`;
 
   // ── RESOLVE COVERS + SPOTIFY ─────────────────────────────────
-  // Each unique pick is fetched once. Cached entries are instant.
+  // Featured album jumps to the front of the queue so it loads first.
+  // Cached entries resolve instantly with no delay.
   // Uncached entries throttled to 1 per 1.1s (MusicBrainz rate limit).
-  // Each fetch now also grabs the Spotify URL from MB url-rels.
-  const queue = [...toResolve.entries()];
+  const featuredKey = featuredPick ? cacheKey(featuredPick.artist, featuredPick.title) : null;
+  const queue = [...toResolve.entries()].sort(([a], [b]) => {
+    if (a === featuredKey) return -1;
+    if (b === featuredKey) return  1;
+    return 0;
+  });
   let qi = 0;
 
   function resolveNext() {
