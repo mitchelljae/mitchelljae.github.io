@@ -100,16 +100,7 @@
       position: relative;
       z-index: 2;
     }
-    /* Vignette fades backdrop out at sides and bottom of featured section */
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 55%, transparent 25%, var(--bg) 80%);
-      z-index: 1;
-      pointer-events: none;
-    }
-    /* Header sits above vignette */
+    /* Header sits above backdrop */
     header {
       position: relative;
       z-index: 2;
