@@ -690,19 +690,26 @@ function parseScoresCSV(text) {
   });
 
   // Merge each group: later non-null values overwrite earlier ones
+  // Also tally amendment counts per scorer (amend > 0 rows only)
   const scores = new Map();
+  const amendCounts = {}; // scorer → number of amendments
   grouped.forEach((revisions, key) => {
     revisions.sort((a, b) => a.amend - b.amend);
     const merged = {};
-    revisions.forEach(({ entry }) => {
+    revisions.forEach(({ amend, entry }) => {
       scoreHeaders.forEach(h => {
-        if (entry[h] !== null) merged[h] = entry[h];
-        else if (!(h in merged)) merged[h] = null;
+        if (entry[h] !== null) {
+          if (amend > 0) amendCounts[h] = (amendCounts[h] || 0) + 1;
+          merged[h] = entry[h];
+        } else if (!(h in merged)) {
+          merged[h] = null;
+        }
       });
     });
     scores.set(key, merged);
   });
 
+  scores._amendCounts = amendCounts;
   return scores;
 }
 
@@ -1291,6 +1298,12 @@ function render(COLLECTION, SCORES = new Map()) {
       )
     : '—';
 
+  // Most Changed Scores — scorer with most amendment entries
+  const amendCounts = SCORES._amendCounts || {};
+  const mostChanged = Object.keys(amendCounts).length
+    ? Object.keys(amendCounts).reduce((a, b) => amendCounts[a] >= amendCounts[b] ? a : b)
+    : '—';
+
   const statsSection = document.getElementById('stats-section');
   [
     { label: 'Solo Artists',        value: soloCount    },
@@ -1299,7 +1312,8 @@ function render(COLLECTION, SCORES = new Map()) {
     { label: 'Most Popular Decade', value: topDecade    },
     { label: 'Highest Score',       value: highScore    },
     { label: 'Lowest Score',        value: lowScore     },
-    { label: 'Most Generous Scorer',value: mostGenerous },
+    { label: 'Most Generous Scorer', value: mostGenerous },
+    { label: 'Most Changed Scores',  value: mostChanged  },
   ].forEach(({ label, value }) => {
     const el = document.createElement('div');
     el.className = 'stat-item';
