@@ -98,10 +98,9 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at 50% 40%,
-        transparent 15%,
-        var(--bg) 72%
-      );
+      background:
+        linear-gradient(to bottom, var(--bg) 0%, transparent 30%),
+        radial-gradient(ellipse at 50% 40%, transparent 15%, var(--bg) 72%);
       z-index: 1;
       pointer-events: none;
     }
