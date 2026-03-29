@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ABP </title>
+  <title>ABP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
 
@@ -39,12 +39,31 @@
       }
     }
 
+    html { position: relative; }
     html, body {
       background: var(--bg);
       color: var(--text);
       font-family: 'DM Sans', sans-serif;
       font-weight: 300;
       min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100vh;
+      background-size: cover;
+      background-position: center top;
+      background-image: var(--backdrop-url);
+      filter: blur(60px) saturate(1.6) brightness(0.35);
+      transform: scale(1.12);
+      z-index: 0;
+      pointer-events: none;
+      -webkit-mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 80%);
+      mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 80%);
     }
 
     /* ── HEADER ── */
@@ -72,28 +91,6 @@
       position: relative;
       z-index: 2;
     }
-
-    /* ── PAGE BACKDROP ── */
-    /* Single blurred image behind the entire top of the page.
-       Sits behind everything. Only the table and below get a solid bg. */
-    #page-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-size: cover;
-      background-position: center top;
-      filter: blur(60px) saturate(1.6) brightness(0.35);
-      transform: scale(1.12);
-      z-index: 0;
-      opacity: 0;
-      transition: opacity 0.8s ease;
-      pointer-events: none;
-      -webkit-mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 80%);
-      mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 80%);
-    }
-    #page-backdrop.loaded { opacity: 1; }
 
     /* ── HERO (header + featured unified) ── */
     .hero {
@@ -623,7 +620,6 @@
 <body>
 
 <div class="hero">
-  <div id="page-backdrop"></div>
   <header>
     <div class="header-text">
       <h1>ABP</h1>
@@ -917,11 +913,9 @@ function render(COLLECTION, SCORES = new Map()) {
       };
       img.src = url;
     });
-    // Set blurred backdrop on page-level backdrop div if key matches featured
-    const backdrop = document.getElementById('page-backdrop');
-    if (backdrop && document.querySelector(`.featured-links[data-spotkey="${key}"]`)) {
-      backdrop.style.backgroundImage = `url(${url})`;
-      backdrop.classList.add('loaded');
+    // Set blurred backdrop via CSS variable on body if this is the featured key
+    if (document.querySelector(`.featured-links[data-spotkey="${key}"]`)) {
+      document.body.style.setProperty('--backdrop-url', `url(${url})`);
     }
   }
 
