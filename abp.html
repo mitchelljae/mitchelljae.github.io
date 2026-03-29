@@ -115,8 +115,11 @@
       font-size: 0.65rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--accent);
       margin-bottom: 20px;
+      border: 1px solid var(--accent);
+      padding: 4px 12px;
+      opacity: 0.7;
     }
     .featured-art {
       position: relative;
@@ -137,9 +140,12 @@
     .featured-artist {
       font-family: 'DM Mono', monospace;
       font-size: 0.7rem;
-      color: var(--muted);
+      color: var(--label);
       margin-bottom: 6px;
       letter-spacing: 0.05em;
+    }
+    @media (prefers-color-scheme: dark) {
+      .featured-artist { color: #999; }
     }
     .featured-title {
       font-family: 'Bebas Neue', sans-serif;
@@ -524,6 +530,10 @@
       .table-section { padding: 0 0 60px; }
       .table-section h2 { padding-left: 16px; }
       .stats-section { padding: 0 16px 40px; gap: 24px 32px; }
+
+      /* More breathing room on table rows */
+      .picks-table td { padding: 8px 10px; }
+      .picks-table td:first-child { padding: 6px; }
 
       /* Disable card hover overlays on touch screens */
       .album-overlay,
