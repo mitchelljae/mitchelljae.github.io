@@ -71,29 +71,36 @@
       padding: 0 48px 60px;
       position: relative;
       z-index: 2;
-      background: linear-gradient(to bottom, transparent 0%, var(--bg) 120px);
     }
 
-    /* ── HERO (header + featured unified) ── */
-    .hero {
-      position: relative;
-      overflow: hidden;
-    }
-    /* Single blurred backdrop behind header + featured */
+    /* ── PAGE BACKDROP ── */
+    /* Single blurred image behind the entire top of the page.
+       Sits behind everything. Only the table and below get a solid bg. */
     #page-backdrop {
-      position: absolute;
-      inset: -60px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-size: cover;
-      background-position: center;
-      filter: blur(48px) saturate(1.6) brightness(0.45);
-      transform: scale(1.1);
+      background-position: center top;
+      filter: blur(60px) saturate(1.6) brightness(0.35);
+      transform: scale(1.12);
       z-index: 0;
       opacity: 0;
       transition: opacity 0.8s ease;
       pointer-events: none;
+      -webkit-mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 80%);
+      mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 80%);
     }
     #page-backdrop.loaded { opacity: 1; }
-    /* Vignette over the whole hero — fades sides and bottom */
+
+    /* ── HERO (header + featured unified) ── */
+    .hero {
+      position: relative;
+      z-index: 2;
+    }
+    /* Vignette fades backdrop out at sides and bottom of featured section */
     .hero::after {
       content: '';
       position: absolute;
@@ -102,7 +109,7 @@
       z-index: 1;
       pointer-events: none;
     }
-    /* Header sits above backdrop */
+    /* Header sits above vignette */
     header {
       position: relative;
       z-index: 2;
@@ -413,7 +420,6 @@
       padding: 0 48px 80px;
       position: relative;
       z-index: 2;
-      background: var(--bg);
     }
     .table-section h2 {
       font-family: 'Bebas Neue', sans-serif;
@@ -555,7 +561,6 @@
       gap: 32px 48px;
       position: relative;
       z-index: 2;
-      background: var(--bg);
     }
     .stat-item {
       font-family: 'DM Mono', monospace;
