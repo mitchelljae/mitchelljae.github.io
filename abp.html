@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ABP 2</title>
+  <title>ABP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
 
@@ -59,7 +59,8 @@
       background-position: center top;
       background-image: var(--backdrop-url);
       filter: blur(60px) saturate(1.6) brightness(0.35);
-      transform: scale(1.12);
+      transform: scale(1.12) translateZ(0);
+      will-change: transform;
       z-index: 0;
       pointer-events: none;
       -webkit-mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 80%);
@@ -96,11 +97,13 @@
     .hero {
       position: relative;
       z-index: 2;
+      transform: translateZ(0);
     }
     /* Header sits above backdrop */
     header {
       position: relative;
       z-index: 2;
+      transform: translateZ(0);
     }
 
     /* ── FEATURED ── */
