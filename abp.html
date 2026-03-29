@@ -366,11 +366,11 @@
     .picks-table tbody tr:hover      { background: var(--surface); }
     .picks-table tbody tr.row-double { border-left: 2px solid var(--accent); }
     .picks-table td {
-      padding: 5px 12px;
+      padding: 3px 12px;
       vertical-align: middle;
       color: var(--text);
     }
-    .picks-table td:first-child { padding: 6px; width: 56px; }
+    .picks-table td:first-child { padding: 4px 6px; width: 56px; }
 
     .table-thumb {
       display: none;
@@ -1170,11 +1170,21 @@ function render(COLLECTION, SCORES = new Map()) {
   });
   const topGenre = Object.entries(genreCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
 
+  // Flatten all individual score values from SCORES map
+  const allScoreValues = [];
+  SCORES.forEach(entry => {
+    Object.values(entry).forEach(v => { if (v !== null) allScoreValues.push(v); });
+  });
+  const highScore = allScoreValues.length ? Math.max(...allScoreValues) : '—';
+  const lowScore  = allScoreValues.length ? Math.min(...allScoreValues) : '—';
+
   const statsSection = document.getElementById('stats-section');
   [
     { label: 'Solo Artists',       value: soloCount  },
     { label: 'Groups',             value: groupCount },
     { label: 'Most Popular Genre', value: topGenre   },
+    { label: 'Highest Score',      value: highScore  },
+    { label: 'Lowest Score',       value: lowScore   },
   ].forEach(({ label, value }) => {
     const el = document.createElement('div');
     el.className = 'stat-item';
