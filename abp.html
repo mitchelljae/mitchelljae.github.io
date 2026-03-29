@@ -560,7 +560,7 @@ function parseCSV(text) {
   const col = h => headers.indexOf(h);
   const iP = col('person'), iR = col('round'), iW = col('week'),
         iT = col('title'),  iA = col('artist'), iY = col('year'),
-        iD = col('double'), iN = col('note'),   iG = col('group'), iGn = col('genre');
+        iD = col('double'), iN = col('note'),   iG = col('group'), iGn = col('genre'), iDc = col('decade');
 
   const rows = lines.slice(1).map(line => {
     const fields = [];
@@ -582,6 +582,7 @@ function parseCSV(text) {
       note:   iN  >= 0 ? (fields[iN]  || '') : '',
       group:  iG  >= 0 ? (fields[iG]  || '').trim() : '',
       genre:  iGn >= 0 ? (fields[iGn] || '').trim() : '',
+      decade: iDc >= 0 ? (fields[iDc] || '').trim() : '',
     };
   }).filter(r => r.person && r.title && r.artist);
 
@@ -595,11 +596,11 @@ function parseCSV(text) {
       if (!rr.length) {
         picks.push(null);
       } else if (rr.length === 1 && !rr[0].double) {
-        const { title, artist, year, week, note, group, genre } = rr[0];
-        picks.push({ title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {}) });
+        const { title, artist, year, week, note, group, genre, decade } = rr[0];
+        picks.push({ title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {}), ...(decade ? { decade } : {}) });
       } else {
-        picks.push(rr.map(({ title, artist, year, week, note, group, genre }) => ({
-          title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {})
+        picks.push(rr.map(({ title, artist, year, week, note, group, genre, decade }) => ({
+          title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {}), ...(decade ? { decade } : {})
         })));
       }
     }
@@ -1176,6 +1177,12 @@ function render(COLLECTION, SCORES = new Map()) {
   });
   const topGenre = Object.entries(genreCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
 
+  const decadeCounts = {};
+  allPicks.forEach(p => {
+    if (p.decade) decadeCounts[p.decade] = (decadeCounts[p.decade] || 0) + 1;
+  });
+  const topDecade = Object.entries(decadeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
+
   // Flatten all individual score values from SCORES map
   const allScoreValues = [];
   SCORES.forEach(entry => {
@@ -1189,6 +1196,7 @@ function render(COLLECTION, SCORES = new Map()) {
     { label: 'Solo Artists',       value: soloCount  },
     { label: 'Groups',             value: groupCount },
     { label: 'Most Popular Genre', value: topGenre   },
+    { label: 'Most Popular Decade',value: topDecade  },
     { label: 'Highest Score',      value: highScore  },
     { label: 'Lowest Score',       value: lowScore   },
   ].forEach(({ label, value }) => {
