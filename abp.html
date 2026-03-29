@@ -1248,14 +1248,32 @@ function render(COLLECTION, SCORES = new Map()) {
   const highScore = allScoreValues.length ? Math.max(...allScoreValues) : '—';
   const lowScore  = allScoreValues.length ? Math.min(...allScoreValues) : '—';
 
+  // Most Generous Scorer — scorer with highest average across all weeks
+  const scorerTotals = {};
+  const scorerCounts = {};
+  SCORES.forEach(entry => {
+    Object.entries(entry).forEach(([scorer, val]) => {
+      if (val !== null) {
+        scorerTotals[scorer] = (scorerTotals[scorer] || 0) + val;
+        scorerCounts[scorer] = (scorerCounts[scorer] || 0) + 1;
+      }
+    });
+  });
+  const mostGenerous = Object.keys(scorerTotals).length
+    ? Object.keys(scorerTotals).reduce((best, s) =>
+        (scorerTotals[s] / scorerCounts[s]) > (scorerTotals[best] / scorerCounts[best]) ? s : best
+      )
+    : '—';
+
   const statsSection = document.getElementById('stats-section');
   [
-    { label: 'Solo Artists',       value: soloCount  },
-    { label: 'Groups',             value: groupCount },
-    { label: 'Most Popular Genre', value: topGenre   },
-    { label: 'Most Popular Decade',value: topDecade  },
-    { label: 'Highest Score',      value: highScore  },
-    { label: 'Lowest Score',       value: lowScore   },
+    { label: 'Solo Artists',        value: soloCount    },
+    { label: 'Groups',              value: groupCount   },
+    { label: 'Most Popular Genre',  value: topGenre     },
+    { label: 'Most Popular Decade', value: topDecade    },
+    { label: 'Highest Score',       value: highScore    },
+    { label: 'Lowest Score',        value: lowScore     },
+    { label: 'Most Generous Scorer',value: mostGenerous },
   ].forEach(({ label, value }) => {
     const el = document.createElement('div');
     el.className = 'stat-item';
