@@ -69,6 +69,24 @@
     /* ── MAIN ── */
     main { padding: 0 48px 60px; }
 
+    /* ── PAGE BACKDROP (featured album art, bleeds behind header) ── */
+    #page-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 600px;
+      background-size: cover;
+      background-position: center;
+      filter: blur(48px) saturate(1.6) brightness(0.45);
+      transform: scale(1.15);
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      pointer-events: none;
+    }
+    #page-backdrop.loaded { opacity: 1; }
+
     /* ── FEATURED ── */
     .featured {
       position: relative;
@@ -77,33 +95,23 @@
       align-items: center;
       text-align: center;
       padding: 60px 48px 52px;
-      overflow: hidden;
     }
-    /* Blurred ambient backdrop */
-    .featured-backdrop {
-      position: absolute;
-      inset: -60px;
-      background-size: cover;
-      background-position: center;
-      filter: blur(48px) saturate(1.6) brightness(0.45);
-      transform: scale(1.1);
-      z-index: 0;
-      opacity: 0;
-      transition: opacity 0.8s ease;
-    }
-    .featured-backdrop.loaded { opacity: 1; }
-    /* Gradient vignette to fade backdrop into page bg */
+    /* Gradient vignette — radial only, no top gradient */
     .featured::after {
       content: '';
       position: absolute;
       inset: 0;
-      background:
-        linear-gradient(to bottom, var(--bg) 0%, transparent 30%),
-        radial-gradient(ellipse at 50% 40%, transparent 15%, var(--bg) 72%);
+      background: radial-gradient(ellipse at 50% 40%, transparent 15%, var(--bg) 72%);
       z-index: 1;
       pointer-events: none;
     }
-    /* All featured content sits above backdrop and vignette */
+    /* Header needs its own fade so backdrop doesn't show through it harshly */
+    header {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(to bottom, var(--bg) 60%, transparent);
+    }
+    /* All featured content sits above vignette */
     .featured-label,
     .featured-art,
     .featured-artist,
@@ -603,6 +611,7 @@
 </head>
 <body>
 
+<div id="page-backdrop"></div>
 <header>
   <div class="header-text">
     <h1>ABP</h1>
@@ -896,9 +905,9 @@ function render(COLLECTION, SCORES = new Map()) {
       };
       img.src = url;
     });
-    // Set blurred backdrop on featured block if key matches
-    const backdrop = document.querySelector(`.featured-backdrop[data-featkey="${key}"]`);
-    if (backdrop) {
+    // Set blurred backdrop on page-level backdrop div if key matches featured
+    const backdrop = document.getElementById('page-backdrop');
+    if (backdrop && document.querySelector(`.featured-links[data-spotkey="${key}"]`)) {
       backdrop.style.backgroundImage = `url(${url})`;
       backdrop.classList.add('loaded');
     }
@@ -1074,11 +1083,6 @@ function render(COLLECTION, SCORES = new Map()) {
 
     const featured = document.getElementById('featured');
     featured.className = 'featured';
-
-    const backdrop = document.createElement('div');
-    backdrop.className = 'featured-backdrop';
-    backdrop.dataset.featkey = featKey;
-    featured.appendChild(backdrop);
 
     [
       Object.assign(document.createElement('div'), { className: 'featured-label',  textContent: "This Week's Album" }),
