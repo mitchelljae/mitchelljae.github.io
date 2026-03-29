@@ -401,6 +401,20 @@
       letter-spacing: 0.05em;
     }
 
+    /* ── SORTABLE HEADERS ── */
+    .picks-table th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+    .picks-table th.sortable:hover { color: var(--text); }
+    .picks-table th.sortable::after {
+      content: ' ⇅';
+      opacity: 0.3;
+      font-size: 0.6rem;
+    }
+    .picks-table th.sort-asc::after  { content: ' ↑'; opacity: 1; }
+    .picks-table th.sort-desc::after { content: ' ↓'; opacity: 1; }
+
     /* ── ROW HIGHLIGHT (scroll target) ── */
     @keyframes rowflash {
       0%   { background: color-mix(in srgb, var(--accent) 18%, transparent); }
@@ -872,8 +886,13 @@ function render(COLLECTION) {
   table.className = 'picks-table';
   table.innerHTML = `
     <thead><tr>
-      <th></th><th>Week</th><th>Round</th><th>Person</th>
-      <th>Artist</th><th>Album</th><th>Year</th>
+      <th></th>
+      <th class="sortable" data-col="week">Week</th>
+      <th class="sortable" data-col="round">Round</th>
+      <th class="sortable" data-col="person">Person</th>
+      <th class="sortable" data-col="artist">Artist</th>
+      <th class="sortable" data-col="album">Album</th>
+      <th class="sortable" data-col="year">Year</th>
     </tr></thead>
     <tbody id="table-body"></tbody>
   `;
@@ -889,9 +908,23 @@ function render(COLLECTION) {
       );
     });
   }
-  allRows.sort((a, b) => (a.pick?.week ?? Infinity) - (b.pick?.week ?? Infinity));
 
-  allRows.forEach(({ pick, person, round, double: dbl }) => {
+  // Current sort state
+  let sortCol = 'week', sortDir = 1; // 1 = asc, -1 = desc
+
+  function rowValue(row, col) {
+    switch (col) {
+      case 'week':   return row.pick?.week ?? Infinity;
+      case 'round':  return row.round;
+      case 'person': return row.person.toLowerCase();
+      case 'artist': return row.pick.artist.toLowerCase();
+      case 'album':  return row.pick.title.toLowerCase();
+      case 'year':   return row.pick?.year ?? 0;
+      default:       return '';
+    }
+  }
+
+  function buildRow({ pick, person, round, double: dbl }) {
     const tr = document.createElement('tr');
     tr.id = `row-${cacheKey(pick.artist, pick.title)}`;
     if (dbl) tr.classList.add('row-double');
@@ -918,8 +951,44 @@ function render(COLLECTION) {
       Object.assign(document.createElement('td'), { className: 'td-year',   textContent: pick.year ?? '—' }),
     ].forEach(td => tr.appendChild(td));
 
-    tbody.appendChild(tr);
+    return tr;
+  }
+
+  // Build all rows once and cache them — re-sorting just reorders existing nodes
+  const builtRows = allRows.map(row => ({ ...row, tr: buildRow(row) }));
+
+  function renderTable() {
+    const sorted = [...builtRows].sort((a, b) => {
+      const va = rowValue(a, sortCol);
+      const vb = rowValue(b, sortCol);
+      if (va < vb) return -sortDir;
+      if (va > vb) return  sortDir;
+      return 0;
+    });
+    sorted.forEach(row => tbody.appendChild(row.tr)); // appendChild moves existing nodes
+  }
+
+  // Sort on header click
+  table.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.col;
+      if (sortCol === col) {
+        sortDir *= -1;
+      } else {
+        sortCol = col;
+        sortDir = 1;
+      }
+      table.querySelectorAll('th.sortable').forEach(h => {
+        h.classList.remove('sort-asc', 'sort-desc');
+      });
+      th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+      renderTable();
+    });
   });
+
+  // Initial render sorted by week asc, mark the header
+  table.querySelector('th[data-col="week"]').classList.add('sort-asc');
+  renderTable();
 
   // ── META ─────────────────────────────────────────────────────
   document.getElementById('header-meta').textContent =
