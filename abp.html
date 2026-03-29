@@ -654,29 +654,55 @@ function parseCSV(text) {
 }
 
 // ── SCORES CSV PARSER ────────────────────────────────────────
-// Returns a Map keyed by "week|artist" → { col: value, ... }
-// If artist column is absent, falls back to keying by week alone.
+// Keyed by "week|artist". Supports an optional `amend` column —
+// rows are sorted by amend value ascending and merged, so each
+// scorer's displayed value is the last non-null entry across all
+// revisions (amendment rows only need to include changed scores).
 function parseScoresCSV(text) {
   const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
   const headers = lines[0].split(',').map(h => h.trim());
   const artistIdx = headers.findIndex(h => h.toLowerCase() === 'artist');
-  const scoreHeaders = headers.filter((h, i) => i !== 0 && i !== artistIdx);
-  const scores = new Map();
+  const amendIdx  = headers.findIndex(h => h.toLowerCase() === 'amend');
+  const scoreHeaders = headers.filter((h, i) =>
+    i !== 0 && i !== artistIdx && i !== amendIdx
+  );
+
+  // Collect all rows grouped by key, sorted by amend asc
+  const grouped = new Map(); // key → [{ amend, entry }, ...]
 
   lines.slice(1).forEach(line => {
     const fields = line.split(',').map(f => f.trim());
     const week   = parseInt(fields[0], 10);
     if (!week) return;
     const artist = artistIdx >= 0 ? (fields[artistIdx] || '').toLowerCase() : '';
+    const amend  = amendIdx  >= 0 ? (parseInt(fields[amendIdx], 10) || 0)   : 0;
     const key    = artist ? `${week}|${artist}` : String(week);
-    const entry  = {};
+
+    const entry = {};
     scoreHeaders.forEach(h => {
-      const i   = headers.indexOf(h);
-      const val = fields[i];
-      entry[h]  = val !== '' && val !== undefined ? parseFloat(val) : null;
+      const i  = headers.indexOf(h);
+      const v  = fields[i];
+      entry[h] = v !== '' && v !== undefined ? parseFloat(v) : null;
     });
-    scores.set(key, entry);
+
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key).push({ amend, entry });
   });
+
+  // Merge each group: later non-null values overwrite earlier ones
+  const scores = new Map();
+  grouped.forEach((revisions, key) => {
+    revisions.sort((a, b) => a.amend - b.amend);
+    const merged = {};
+    revisions.forEach(({ entry }) => {
+      scoreHeaders.forEach(h => {
+        if (entry[h] !== null) merged[h] = entry[h];
+        else if (!(h in merged)) merged[h] = null;
+      });
+    });
+    scores.set(key, merged);
+  });
+
   return scores;
 }
 
