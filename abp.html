@@ -968,20 +968,25 @@ function render(COLLECTION) {
     sorted.forEach(row => tbody.appendChild(row.tr)); // appendChild moves existing nodes
   }
 
-  // Sort on header click
+  // Sort on header click — 1st click: asc, 2nd: desc, 3rd: reset to default
   table.querySelectorAll('th.sortable').forEach(th => {
     th.addEventListener('click', () => {
       const col = th.dataset.col;
       if (sortCol === col) {
-        sortDir *= -1;
+        if (sortDir === 1) {
+          sortDir = -1;
+        } else {
+          // Third click — reset to default (week asc)
+          sortCol = 'week';
+          sortDir = 1;
+        }
       } else {
         sortCol = col;
         sortDir = 1;
       }
-      table.querySelectorAll('th.sortable').forEach(h => {
-        h.classList.remove('sort-asc', 'sort-desc');
-      });
-      th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+      table.querySelectorAll('th.sortable').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+      const activeCol = table.querySelector(`th[data-col="${sortCol}"]`);
+      activeCol.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
       renderTable();
     });
   });
