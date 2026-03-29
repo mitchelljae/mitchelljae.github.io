@@ -366,7 +366,7 @@
     .picks-table tbody tr:hover      { background: var(--surface); }
     .picks-table tbody tr.row-double { border-left: 2px solid var(--accent); }
     .picks-table td {
-      padding: 8px 12px;
+      padding: 5px 12px;
       vertical-align: middle;
       color: var(--text);
     }
@@ -388,6 +388,7 @@
     .td-artist { color: var(--label); }
     .td-album  { font-weight: 400; }
     .td-genre  { color: var(--label); font-size: 0.75rem; }
+    .td-avg    { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--accent); font-weight: 400; }
 
     .td-double-badge {
       display: inline-block;
@@ -432,7 +433,7 @@
       padding: 10px 16px 12px;
       overflow: hidden;
     }
-    .score-row-inner.visible { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+    .score-row-inner.visible { display: flex; flex-wrap: wrap; gap: 8px 36px; }
     .score-chip {
       display: flex;
       flex-direction: column;
@@ -452,17 +453,6 @@
       font-weight: 400;
     }
     .score-chip .chip-value.chip-none { color: var(--muted); }
-    .score-avg {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-      align-self: flex-end;
-      margin-left: auto;
-    }
-    .score-avg strong {
-      color: var(--accent);
-      font-size: 0.75rem;
-    }
 
     /* ── SORTABLE HEADERS ── */
     .picks-table th.sortable {
@@ -995,6 +985,7 @@ function render(COLLECTION, SCORES = new Map()) {
       <th class="sortable" data-col="album">Album</th>
       <th class="sortable" data-col="genre">Genre</th>
       <th class="sortable" data-col="year">Year</th>
+      <th class="sortable" data-col="avg">Avg</th>
       <th class="th-expand"></th>
     </tr></thead>
     <tbody id="table-body"></tbody>
@@ -1024,6 +1015,7 @@ function render(COLLECTION, SCORES = new Map()) {
       case 'album':  return row.pick.title.toLowerCase();
       case 'genre':  return (row.pick.genre || '').toLowerCase();
       case 'year':   return row.pick?.year ?? 0;
+      case 'avg':    return row.avg ?? -Infinity;
       default:       return '';
     }
   }
@@ -1045,10 +1037,17 @@ function render(COLLECTION, SCORES = new Map()) {
     personTd.textContent = person;
     if (dbl) personTd.innerHTML += `<span class="td-double-badge">double</span>`;
 
-    // Chevron expand button
-    const expandTd  = document.createElement('td');
-    expandTd.className = 'td-expand';
+    // Compute avg from scores
     const weekScores = pick.week ? SCORES.get(pick.week) : null;
+    let avg = null;
+    if (weekScores) {
+      const vals = Object.values(weekScores).filter(v => v !== null);
+      avg = vals.length ? parseFloat((vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(2)) : null;
+    }
+
+    // Chevron expand button
+    const expandTd = document.createElement('td');
+    expandTd.className = 'td-expand';
     if (weekScores) {
       const btn = document.createElement('button');
       btn.className = 'expand-btn';
@@ -1066,6 +1065,7 @@ function render(COLLECTION, SCORES = new Map()) {
       Object.assign(document.createElement('td'), { className: 'td-album',  textContent: pick.title }),
       Object.assign(document.createElement('td'), { className: 'td-genre',  textContent: pick.genre || '—' }),
       Object.assign(document.createElement('td'), { className: 'td-year',   textContent: pick.year ?? '—' }),
+      Object.assign(document.createElement('td'), { className: 'td-avg',    textContent: avg ?? '—' }),
       expandTd,
     ].forEach(td => tr.appendChild(td));
 
@@ -1073,14 +1073,11 @@ function render(COLLECTION, SCORES = new Map()) {
     const scoreTr = document.createElement('tr');
     scoreTr.className = 'score-row';
     const scoreTd = document.createElement('td');
-    scoreTd.colSpan = 9;
+    scoreTd.colSpan = 10;
     const scoreInner = document.createElement('div');
     scoreInner.className = 'score-row-inner';
 
     if (weekScores) {
-      const vals = Object.values(weekScores).filter(v => v !== null);
-      const avg  = vals.length ? (vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(2) : null;
-
       Object.entries(weekScores).forEach(([label, val]) => {
         const chip = document.createElement('div');
         chip.className = 'score-chip';
@@ -1092,14 +1089,6 @@ function render(COLLECTION, SCORES = new Map()) {
         scoreInner.appendChild(chip);
       });
 
-      if (avg !== null) {
-        const avgEl = document.createElement('div');
-        avgEl.className = 'score-avg';
-        avgEl.innerHTML = `avg <strong>${avg}</strong>`;
-        scoreInner.appendChild(avgEl);
-      }
-
-      // Wire up toggle
       const btn = expandTd.querySelector('.expand-btn');
       btn.addEventListener('click', e => {
         e.stopPropagation();
@@ -1111,11 +1100,14 @@ function render(COLLECTION, SCORES = new Map()) {
     scoreTd.appendChild(scoreInner);
     scoreTr.appendChild(scoreTd);
 
-    return { tr, scoreTr };
+    return { tr, scoreTr, avg };
   }
 
   // Build all rows once — re-sorting moves existing nodes, preserving loaded images
-  const builtRows = allRows.map(row => ({ ...row, ...buildRow(row) }));
+  const builtRows = allRows.map(row => {
+    const built = buildRow(row);
+    return { ...row, tr: built.tr, scoreTr: built.scoreTr, avg: built.avg };
+  });
 
   function renderTable() {
     const sorted = [...builtRows].sort((a, b) => {
