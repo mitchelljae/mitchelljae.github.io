@@ -67,11 +67,17 @@
     }
 
     /* ── MAIN ── */
-    main { padding: 0 48px 60px; }
+    main {
+      padding: 0 48px 60px;
+      position: relative;
+      z-index: 2;
+      background: var(--bg);
+    }
 
     /* ── HERO (header + featured unified) ── */
     .hero {
       position: relative;
+      overflow: hidden;
     }
     /* Single blurred backdrop behind header + featured */
     #page-backdrop {
@@ -403,7 +409,12 @@
     }
 
     /* ── TABLE ── */
-    .table-section { padding: 0 48px 80px; }
+    .table-section {
+      padding: 0 48px 80px;
+      position: relative;
+      z-index: 2;
+      background: var(--bg);
+    }
     .table-section h2 {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1.8rem;
@@ -542,6 +553,9 @@
       display: flex;
       flex-wrap: wrap;
       gap: 32px 48px;
+      position: relative;
+      z-index: 2;
+      background: var(--bg);
     }
     .stat-item {
       font-family: 'DM Mono', monospace;
