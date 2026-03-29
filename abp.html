@@ -616,6 +616,8 @@ function parseScoresCSV(text) {
   });
   return scores;
 }
+
+// ── BOOT ─────────────────────────────────────────────────────
 (async function boot() {
   const app = document.getElementById('app');
   app.innerHTML = `<div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);">loading…</div>`;
@@ -626,14 +628,15 @@ function parseScoresCSV(text) {
       fetch('scores.csv?v=' + Date.now()),
     ]);
     if (!albumsRes.ok) throw new Error(`Could not load albums.csv (HTTP ${albumsRes.status})`);
-    const scores = scoresRes.ok ? parseScoresCSV(await scoresRes.text()) : {};
+    const scores = scoresRes.ok ? parseScoresCSV(await scoresRes.text()) : new Map();
     app.innerHTML = '';
     render(parseCSV(await albumsRes.text()), scores);
   } catch (e) {
+    console.error(e);
     app.innerHTML = `
       <div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.8rem;color:#e05;">
         ✕ ${e.message}<br><br>
-        <span style="color:var(--muted)">Make sure albums.csv is in the same directory as index.html.</span>
+        <span style="color:var(--muted)">Make sure albums.csv and scores.csv are in the same directory as index.html.</span>
       </div>`;
   }
 })();
