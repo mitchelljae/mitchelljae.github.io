@@ -69,23 +69,38 @@
     /* ── MAIN ── */
     main { padding: 0 48px 60px; }
 
-    /* ── PAGE BACKDROP (featured album art, bleeds behind header) ── */
+    /* ── HERO (header + featured unified) ── */
+    .hero {
+      position: relative;
+    }
+    /* Single blurred backdrop behind header + featured */
     #page-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 600px;
+      position: absolute;
+      inset: -60px;
       background-size: cover;
       background-position: center;
       filter: blur(48px) saturate(1.6) brightness(0.45);
-      transform: scale(1.15);
+      transform: scale(1.1);
       z-index: 0;
       opacity: 0;
       transition: opacity 0.8s ease;
       pointer-events: none;
     }
     #page-backdrop.loaded { opacity: 1; }
+    /* Vignette over the whole hero — fades to bg at edges and bottom */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 60%, transparent 20%, var(--bg) 75%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    /* Header sits above backdrop */
+    header {
+      position: relative;
+      z-index: 2;
+    }
 
     /* ── FEATURED ── */
     .featured {
@@ -95,21 +110,7 @@
       align-items: center;
       text-align: center;
       padding: 60px 48px 52px;
-    }
-    /* Gradient vignette — radial only, no top gradient */
-    .featured::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 40%, transparent 15%, var(--bg) 72%);
-      z-index: 1;
-      pointer-events: none;
-    }
-    /* Header needs its own fade so backdrop doesn't show through it harshly */
-    header {
-      position: relative;
-      z-index: 1;
-      background: linear-gradient(to bottom, var(--bg) 60%, transparent);
+      z-index: 2;
     }
     /* All featured content sits above vignette */
     .featured-label,
@@ -611,15 +612,16 @@
 </head>
 <body>
 
-<div id="page-backdrop"></div>
-<header>
-  <div class="header-text">
-    <h1>ABP</h1>
-    <span class="subtitle">Last Updated: <span id="last-updated"></span></span>
-  </div>
-</header>
-
-<div id="featured"></div>
+<div class="hero">
+  <div id="page-backdrop"></div>
+  <header>
+    <div class="header-text">
+      <h1>ABP</h1>
+      <span class="subtitle">Last Updated: <span id="last-updated"></span></span>
+    </div>
+  </header>
+  <div id="featured"></div>
+</div>
 <main id="app"></main>
 <div class="table-section" id="table-section"></div>
 <div class="stats-section" id="stats-section"></div>
