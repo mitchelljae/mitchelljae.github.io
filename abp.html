@@ -426,6 +426,26 @@
     .album-card.is-linked,
     .album-card--split.is-linked { cursor: pointer; }
 
+    /* ── STATS ── */
+    .stats-section {
+      padding: 0 48px 48px;
+      display: flex;
+      gap: 48px;
+    }
+    .stat-item {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    .stat-item strong {
+      display: block;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      line-height: 1;
+      color: var(--accent);
+      font-weight: 400;
+    }
+
     /* ── PAGE META ── */
     .page-meta {
       text-align: center;
@@ -458,6 +478,7 @@
 <div id="featured"></div>
 <main id="app"></main>
 <div class="table-section" id="table-section"></div>
+<div class="stats-section" id="stats-section"></div>
 <div class="page-meta" id="header-meta"></div>
 <footer id="footer">ABP · <span id="footer-year"></span> · covers via MusicBrainz / Cover Art Archive</footer>
 
@@ -476,7 +497,7 @@ function parseCSV(text) {
   const col = h => headers.indexOf(h);
   const iP = col('person'), iR = col('round'), iW = col('week'),
         iT = col('title'),  iA = col('artist'), iY = col('year'),
-        iD = col('double'), iN = col('note');
+        iD = col('double'), iN = col('note'),   iG = col('group');
 
   const rows = lines.slice(1).map(line => {
     const fields = [];
@@ -496,6 +517,7 @@ function parseCSV(text) {
       year:   parseInt(fields[iY], 10) || null,
       double: ['true', '1'].includes((fields[iD] || '').toLowerCase().trim()),
       note:   iN >= 0 ? (fields[iN] || '') : '',
+      group:  iG >= 0 ? (fields[iG] || '').trim() : '',
     };
   }).filter(r => r.person && r.title && r.artist);
 
@@ -509,11 +531,11 @@ function parseCSV(text) {
       if (!rr.length) {
         picks.push(null);
       } else if (rr.length === 1 && !rr[0].double) {
-        const { title, artist, year, week, note } = rr[0];
-        picks.push({ title, artist, year, week, ...(note ? { note } : {}) });
+        const { title, artist, year, week, note, group } = rr[0];
+        picks.push({ title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}) });
       } else {
-        picks.push(rr.map(({ title, artist, year, week, note }) => ({
-          title, artist, year, week, ...(note ? { note } : {})
+        picks.push(rr.map(({ title, artist, year, week, note, group }) => ({
+          title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {})
         })));
       }
     }
@@ -995,7 +1017,21 @@ function render(COLLECTION) {
   table.querySelector('th[data-col="week"]').classList.add('sort-asc');
   renderTable();
 
-  // ── META ─────────────────────────────────────────────────────
+  // ── STATS ────────────────────────────────────────────────────
+  const allPicks = allRows.map(r => r.pick);
+  const soloCount  = allPicks.filter(p => p.group === '0').length;
+  const groupCount = allPicks.filter(p => p.group === '1').length;
+
+  const statsSection = document.getElementById('stats-section');
+  [
+    { label: 'Solo Artists', value: soloCount },
+    { label: 'Groups',       value: groupCount },
+  ].forEach(({ label, value }) => {
+    const el = document.createElement('div');
+    el.className = 'stat-item';
+    el.innerHTML = `<strong>${value}</strong>${label}`;
+    statsSection.appendChild(el);
+  });
   document.getElementById('header-meta').textContent =
     `${people.length} people · ${roundCount} rounds · ${totalPicks} picks`;
 
