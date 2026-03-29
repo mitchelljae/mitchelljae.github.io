@@ -402,6 +402,68 @@
       letter-spacing: 0.05em;
     }
 
+    /* ── EXPANDABLE SCORE ROW ── */
+    .picks-table th.th-expand,
+    .picks-table td.td-expand {
+      width: 28px;
+      padding: 0 8px;
+      text-align: center;
+    }
+    .expand-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.65rem;
+      padding: 2px 4px;
+      transition: color 0.15s, transform 0.2s;
+      line-height: 1;
+    }
+    .expand-btn:hover { color: var(--accent); }
+    .expand-btn.open  { transform: rotate(180deg); color: var(--accent); }
+
+    .score-row td {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+    }
+    .score-row-inner {
+      display: none;
+      padding: 10px 16px 12px;
+      overflow: hidden;
+    }
+    .score-row-inner.visible { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+    .score-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+    }
+    .score-chip .chip-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    .score-chip .chip-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      font-weight: 400;
+    }
+    .score-chip .chip-value.chip-none { color: var(--muted); }
+    .score-avg {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      align-self: flex-end;
+      margin-left: auto;
+    }
+    .score-avg strong {
+      color: var(--accent);
+      font-size: 0.75rem;
+    }
+
     /* ── SORTABLE HEADERS ── */
     .picks-table th.sortable {
       cursor: pointer;
@@ -535,16 +597,38 @@ function parseCSV(text) {
   });
 }
 
-// ── BOOT ─────────────────────────────────────────────────────
+// ── SCORES CSV PARSER ────────────────────────────────────────
+// Returns a Map keyed by week number → { col: value, ... }
+function parseScoresCSV(text) {
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+  const headers = lines[0].split(',').map(h => h.trim());
+  const scores = new Map();
+  lines.slice(1).forEach(line => {
+    const fields = line.split(',').map(f => f.trim());
+    const week = parseInt(fields[0], 10);
+    if (!week) return;
+    const entry = {};
+    headers.slice(1).forEach((h, i) => {
+      const val = fields[i + 1];
+      entry[h] = val !== '' && val !== undefined ? parseFloat(val) : null;
+    });
+    scores.set(week, entry);
+  });
+  return scores;
+}
 (async function boot() {
   const app = document.getElementById('app');
-  app.innerHTML = `<div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);">loading albums.csv…</div>`;
+  app.innerHTML = `<div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);">loading…</div>`;
 
   try {
-    const res = await fetch('albums.csv?v=' + Date.now());
-    if (!res.ok) throw new Error(`Could not load albums.csv (HTTP ${res.status})`);
+    const [albumsRes, scoresRes] = await Promise.all([
+      fetch('albums.csv?v=' + Date.now()),
+      fetch('scores.csv?v=' + Date.now()),
+    ]);
+    if (!albumsRes.ok) throw new Error(`Could not load albums.csv (HTTP ${albumsRes.status})`);
+    const scores = scoresRes.ok ? parseScoresCSV(await scoresRes.text()) : {};
     app.innerHTML = '';
-    render(parseCSV(await res.text()));
+    render(parseCSV(await albumsRes.text()), scores);
   } catch (e) {
     app.innerHTML = `
       <div style="padding:48px;font-family:'DM Mono',monospace;font-size:0.8rem;color:#e05;">
@@ -556,7 +640,7 @@ function parseCSV(text) {
 </script>
 
 <script>
-function render(COLLECTION) {
+function render(COLLECTION, SCORES = new Map()) {
 
   // ── HELPERS ─────────────────────────────────────────────────
   const isDouble = pick => Array.isArray(pick);
@@ -908,6 +992,7 @@ function render(COLLECTION) {
       <th class="sortable" data-col="album">Album</th>
       <th class="sortable" data-col="genre">Genre</th>
       <th class="sortable" data-col="year">Year</th>
+      <th class="th-expand"></th>
     </tr></thead>
     <tbody id="table-body"></tbody>
   `;
@@ -957,6 +1042,18 @@ function render(COLLECTION) {
     personTd.textContent = person;
     if (dbl) personTd.innerHTML += `<span class="td-double-badge">double</span>`;
 
+    // Chevron expand button
+    const expandTd  = document.createElement('td');
+    expandTd.className = 'td-expand';
+    const weekScores = pick.week ? SCORES.get(pick.week) : null;
+    if (weekScores) {
+      const btn = document.createElement('button');
+      btn.className = 'expand-btn';
+      btn.setAttribute('aria-label', 'Show scores');
+      btn.textContent = '▾';
+      expandTd.appendChild(btn);
+    }
+
     [
       thumbTd,
       Object.assign(document.createElement('td'), { className: 'td-week',   textContent: pick.week ?? '—' }),
@@ -966,13 +1063,56 @@ function render(COLLECTION) {
       Object.assign(document.createElement('td'), { className: 'td-album',  textContent: pick.title }),
       Object.assign(document.createElement('td'), { className: 'td-genre',  textContent: pick.genre || '—' }),
       Object.assign(document.createElement('td'), { className: 'td-year',   textContent: pick.year ?? '—' }),
+      expandTd,
     ].forEach(td => tr.appendChild(td));
 
-    return tr;
+    // ── Score expansion row ──
+    const scoreTr = document.createElement('tr');
+    scoreTr.className = 'score-row';
+    const scoreTd = document.createElement('td');
+    scoreTd.colSpan = 9;
+    const scoreInner = document.createElement('div');
+    scoreInner.className = 'score-row-inner';
+
+    if (weekScores) {
+      const vals = Object.values(weekScores).filter(v => v !== null);
+      const avg  = vals.length ? (vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(2) : null;
+
+      Object.entries(weekScores).forEach(([label, val]) => {
+        const chip = document.createElement('div');
+        chip.className = 'score-chip';
+        const isNull = val === null;
+        chip.innerHTML = `
+          <span class="chip-label">${label}</span>
+          <span class="chip-value${isNull ? ' chip-none' : ''}">${isNull ? '—' : val}</span>
+        `;
+        scoreInner.appendChild(chip);
+      });
+
+      if (avg !== null) {
+        const avgEl = document.createElement('div');
+        avgEl.className = 'score-avg';
+        avgEl.innerHTML = `avg <strong>${avg}</strong>`;
+        scoreInner.appendChild(avgEl);
+      }
+
+      // Wire up toggle
+      const btn = expandTd.querySelector('.expand-btn');
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = scoreInner.classList.toggle('visible');
+        btn.classList.toggle('open', open);
+      });
+    }
+
+    scoreTd.appendChild(scoreInner);
+    scoreTr.appendChild(scoreTd);
+
+    return { tr, scoreTr };
   }
 
-  // Build all rows once and cache them — re-sorting just reorders existing nodes
-  const builtRows = allRows.map(row => ({ ...row, tr: buildRow(row) }));
+  // Build all rows once — re-sorting moves existing nodes, preserving loaded images
+  const builtRows = allRows.map(row => ({ ...row, ...buildRow(row) }));
 
   function renderTable() {
     const sorted = [...builtRows].sort((a, b) => {
@@ -982,7 +1122,10 @@ function render(COLLECTION) {
       if (va > vb) return  sortDir;
       return 0;
     });
-    sorted.forEach(row => tbody.appendChild(row.tr)); // appendChild moves existing nodes
+    sorted.forEach(row => {
+      tbody.appendChild(row.tr);
+      tbody.appendChild(row.scoreTr);
+    });
   }
 
   // Sort on header click — 1st click: asc, 2nd: desc, 3rd: reset to default
