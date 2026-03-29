@@ -367,6 +367,32 @@
     }
     .round-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
 
+    /* ── TABLE FILTERS ── */
+    .table-filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .filter-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .filter-btn:hover { color: var(--text); border-color: var(--text); }
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--badge-text);
+    }
+
     /* ── TABLE ── */
     .table-section { padding: 0 48px 80px; }
     .table-section h2 {
@@ -605,7 +631,8 @@ function parseCSV(text) {
   const col = h => headers.indexOf(h);
   const iP = col('person'), iR = col('round'), iW = col('week'),
         iT = col('title'),  iA = col('artist'), iY = col('year'),
-        iD = col('double'), iN = col('note'),   iG = col('group'), iGn = col('genre'), iDc = col('decade');
+        iD = col('double'), iN = col('note'),   iG = col('group'), iGn = col('genre'), iDc = col('decade'),
+        iEda = col('eda'), iOr = col('origin'), iMi = col('mins'), iGe = col('gender');
 
   const rows = lines.slice(1).map(line => {
     const fields = [];
@@ -624,10 +651,14 @@ function parseCSV(text) {
       artist: fields[iA] || '',
       year:   parseInt(fields[iY], 10) || null,
       double: ['true', '1'].includes((fields[iD] || '').toLowerCase().trim()),
-      note:   iN  >= 0 ? (fields[iN]  || '') : '',
-      group:  iG  >= 0 ? (fields[iG]  || '').trim() : '',
-      genre:  iGn >= 0 ? (fields[iGn] || '').trim() : '',
-      decade: iDc >= 0 ? (fields[iDc] || '').trim() : '',
+      note:   iN   >= 0 ? (fields[iN]  || '') : '',
+      group:  iG   >= 0 ? (fields[iG]  || '').trim() : '',
+      genre:  iGn  >= 0 ? (fields[iGn] || '').trim() : '',
+      decade: iDc  >= 0 ? (fields[iDc] || '').trim() : '',
+      eda:    iEda >= 0 ? (fields[iEda] || '').trim() : '',
+      origin: iOr  >= 0 ? (fields[iOr] || '').trim() : '',
+      mins:   iMi  >= 0 ? (parseInt(fields[iMi], 10) || null) : null,
+      gender: iGe  >= 0 ? (fields[iGe] || '').trim() : '',
     };
   }).filter(r => r.person && r.title && r.artist);
 
@@ -641,11 +672,11 @@ function parseCSV(text) {
       if (!rr.length) {
         picks.push(null);
       } else if (rr.length === 1 && !rr[0].double) {
-        const { title, artist, year, week, note, group, genre, decade } = rr[0];
-        picks.push({ title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {}), ...(decade ? { decade } : {}) });
+        const { title, artist, year, week, note, group, genre, decade, eda, origin, mins, gender } = rr[0];
+        picks.push({ title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {}), ...(decade ? { decade } : {}), ...(eda !== '' ? { eda } : {}), ...(origin ? { origin } : {}), ...(mins !== null ? { mins } : {}), ...(gender ? { gender } : {}) });
       } else {
-        picks.push(rr.map(({ title, artist, year, week, note, group, genre, decade }) => ({
-          title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {}), ...(decade ? { decade } : {})
+        picks.push(rr.map(({ title, artist, year, week, note, group, genre, decade, eda, origin, mins, gender }) => ({
+          title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {}), ...(decade ? { decade } : {}), ...(eda !== '' ? { eda } : {}), ...(origin ? { origin } : {}), ...(mins !== null ? { mins } : {}), ...(gender ? { gender } : {})
         })));
       }
     }
@@ -1091,6 +1122,40 @@ function render(COLLECTION, SCORES = new Map()) {
   h2.textContent = 'All Picks';
   tableSection.appendChild(h2);
 
+  // ── FILTER BUTTONS ───────────────────────────────────────────
+  let activeFilter = null;
+
+  const filters = [
+    { key: 'eda',     label: 'Eponymous Debut', test: p => p.eda === '1' },
+    { key: 'british', label: 'British',          test: p => p.origin === 'GBR' },
+    { key: 'under60', label: 'Under an Hour',    test: p => p.mins !== null && p.mins !== undefined && p.mins < 60 },
+    { key: 'women',   label: 'Women Included',   test: p => typeof p.gender === 'string' && p.gender.includes('F') },
+  ];
+
+  const filterBar = document.createElement('div');
+  filterBar.className = 'table-filters';
+
+  const filterBtns = filters.map(f => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.textContent = f.label;
+    btn.addEventListener('click', () => {
+      if (activeFilter === f.key) {
+        activeFilter = null;
+        btn.classList.remove('active');
+      } else {
+        activeFilter = f.key;
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      renderTable();
+    });
+    filterBar.appendChild(btn);
+    return btn;
+  });
+
+  tableSection.appendChild(filterBar);
+
   const table = document.createElement('table');
   table.className = 'picks-table';
   table.innerHTML = `
@@ -1216,6 +1281,7 @@ function render(COLLECTION, SCORES = new Map()) {
   });
 
   function renderTable() {
+    const activeFilterDef = filters.find(f => f.key === activeFilter);
     const sorted = [...builtRows].sort((a, b) => {
       const va = rowValue(a, sortCol);
       const vb = rowValue(b, sortCol);
@@ -1224,6 +1290,9 @@ function render(COLLECTION, SCORES = new Map()) {
       return 0;
     });
     sorted.forEach(row => {
+      const visible = !activeFilterDef || activeFilterDef.test(row.pick);
+      row.tr.style.display      = visible ? '' : 'none';
+      row.scoreTr.style.display = visible ? '' : 'none';
       tbody.appendChild(row.tr);
       tbody.appendChild(row.scoreTr);
     });
