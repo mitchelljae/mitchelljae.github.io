@@ -50,7 +50,6 @@
     /* ── HEADER ── */
     header {
       padding: 48px 48px 28px;
-      border-bottom: 1px solid var(--border);
     }
     .header-text { display: flex; flex-direction: column; gap: 4px; }
     header h1 {
@@ -525,6 +524,10 @@
       .table-section { padding: 0 0 60px; }
       .table-section h2 { padding-left: 16px; }
       .stats-section { padding: 0 16px 40px; gap: 24px 32px; }
+
+      /* Disable card hover overlays on touch screens */
+      .album-overlay,
+      .split-overlay { display: none; }
 
       /* Scrollable table wrapper */
       .table-section { overflow-x: auto; -webkit-overflow-scrolling: touch; }
