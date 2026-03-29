@@ -588,21 +588,28 @@ function parseCSV(text) {
 }
 
 // ── SCORES CSV PARSER ────────────────────────────────────────
-// Returns a Map keyed by week number → { col: value, ... }
+// Returns a Map keyed by "week|artist" → { col: value, ... }
+// If artist column is absent, falls back to keying by week alone.
 function parseScoresCSV(text) {
   const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
   const headers = lines[0].split(',').map(h => h.trim());
+  const artistIdx = headers.findIndex(h => h.toLowerCase() === 'artist');
+  const scoreHeaders = headers.filter((h, i) => i !== 0 && i !== artistIdx);
   const scores = new Map();
+
   lines.slice(1).forEach(line => {
     const fields = line.split(',').map(f => f.trim());
-    const week = parseInt(fields[0], 10);
+    const week   = parseInt(fields[0], 10);
     if (!week) return;
-    const entry = {};
-    headers.slice(1).forEach((h, i) => {
-      const val = fields[i + 1];
-      entry[h] = val !== '' && val !== undefined ? parseFloat(val) : null;
+    const artist = artistIdx >= 0 ? (fields[artistIdx] || '').toLowerCase() : '';
+    const key    = artist ? `${week}|${artist}` : String(week);
+    const entry  = {};
+    scoreHeaders.forEach(h => {
+      const i   = headers.indexOf(h);
+      const val = fields[i];
+      entry[h]  = val !== '' && val !== undefined ? parseFloat(val) : null;
     });
-    scores.set(week, entry);
+    scores.set(key, entry);
   });
   return scores;
 }
@@ -1037,8 +1044,10 @@ function render(COLLECTION, SCORES = new Map()) {
     personTd.textContent = person;
     if (dbl) personTd.innerHTML += `<span class="td-double-badge">double</span>`;
 
-    // Compute avg from scores
-    const weekScores = pick.week ? SCORES.get(pick.week) : null;
+    // Look up scores by week+artist, falling back to week alone
+    const weekScores = pick.week
+      ? (SCORES.get(`${pick.week}|${pick.artist.toLowerCase()}`) ?? SCORES.get(String(pick.week)) ?? null)
+      : null;
     let avg = null;
     if (weekScores) {
       const vals = Object.values(weekScores).filter(v => v !== null);
