@@ -73,12 +73,46 @@
 
     /* ── FEATURED ── */
     .featured {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
       padding: 0 48px 52px;
+      overflow: hidden;
     }
+    /* Blurred ambient backdrop */
+    .featured-backdrop {
+      position: absolute;
+      inset: -60px;
+      background-size: cover;
+      background-position: center;
+      filter: blur(48px) saturate(1.6) brightness(0.45);
+      transform: scale(1.1);
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .featured-backdrop.loaded { opacity: 1; }
+    /* Gradient vignette to fade backdrop into page bg */
+    .featured::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 40%,
+        transparent 15%,
+        var(--bg) 72%
+      );
+      z-index: 1;
+      pointer-events: none;
+    }
+    /* All featured content sits above backdrop and vignette */
+    .featured-label,
+    .featured-art,
+    .featured-artist,
+    .featured-title,
+    .featured-person,
+    .featured-links { position: relative; z-index: 2; }
     .featured-label {
       font-family: 'DM Mono', monospace;
       font-size: 0.65rem;
@@ -787,6 +821,12 @@ function render(COLLECTION, SCORES = new Map()) {
       };
       img.src = url;
     });
+    // Set blurred backdrop on featured block if key matches
+    const backdrop = document.querySelector(`.featured-backdrop[data-featkey="${key}"]`);
+    if (backdrop) {
+      backdrop.style.backgroundImage = `url(${url})`;
+      backdrop.classList.add('loaded');
+    }
   }
 
   function applySpotify(key, url) {
@@ -959,6 +999,12 @@ function render(COLLECTION, SCORES = new Map()) {
 
     const featured = document.getElementById('featured');
     featured.className = 'featured';
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'featured-backdrop';
+    backdrop.dataset.featkey = featKey;
+    featured.appendChild(backdrop);
+
     [
       Object.assign(document.createElement('div'), { className: 'featured-label',  textContent: "This Week's Album" }),
       artWrap,
