@@ -521,7 +521,9 @@
       /* Hide lower-priority columns on small screens */
       .picks-table .col-round,
       .picks-table .col-genre,
-      .picks-table .col-year  { display: none; }
+      .picks-table .col-year,
+      .picks-table th:first-child,
+      .picks-table td:first-child { display: none; }
 
       /* Stats wrap to 2 per row */
       .stat-item { flex: 1 1 calc(50% - 16px); min-width: 120px; }
