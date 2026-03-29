@@ -387,6 +387,7 @@
     .td-person { font-weight: 400; }
     .td-artist { color: var(--label); }
     .td-album  { font-weight: 400; }
+    .td-genre  { color: var(--label); font-size: 0.75rem; }
 
     .td-double-badge {
       display: inline-block;
@@ -446,15 +447,6 @@
       font-weight: 400;
     }
 
-    /* ── PAGE META ── */
-    .page-meta {
-      text-align: center;
-      padding: 16px 48px 0;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-    }
-
     /* ── FOOTER ── */
     footer {
       text-align: center;
@@ -479,7 +471,6 @@
 <main id="app"></main>
 <div class="table-section" id="table-section"></div>
 <div class="stats-section" id="stats-section"></div>
-<div class="page-meta" id="header-meta"></div>
 <footer id="footer">ABP · <span id="footer-year"></span> · covers via MusicBrainz / Cover Art Archive</footer>
 
 <script>
@@ -497,7 +488,7 @@ function parseCSV(text) {
   const col = h => headers.indexOf(h);
   const iP = col('person'), iR = col('round'), iW = col('week'),
         iT = col('title'),  iA = col('artist'), iY = col('year'),
-        iD = col('double'), iN = col('note'),   iG = col('group');
+        iD = col('double'), iN = col('note'),   iG = col('group'), iGn = col('genre');
 
   const rows = lines.slice(1).map(line => {
     const fields = [];
@@ -516,8 +507,9 @@ function parseCSV(text) {
       artist: fields[iA] || '',
       year:   parseInt(fields[iY], 10) || null,
       double: ['true', '1'].includes((fields[iD] || '').toLowerCase().trim()),
-      note:   iN >= 0 ? (fields[iN] || '') : '',
-      group:  iG >= 0 ? (fields[iG] || '').trim() : '',
+      note:   iN  >= 0 ? (fields[iN]  || '') : '',
+      group:  iG  >= 0 ? (fields[iG]  || '').trim() : '',
+      genre:  iGn >= 0 ? (fields[iGn] || '').trim() : '',
     };
   }).filter(r => r.person && r.title && r.artist);
 
@@ -531,11 +523,11 @@ function parseCSV(text) {
       if (!rr.length) {
         picks.push(null);
       } else if (rr.length === 1 && !rr[0].double) {
-        const { title, artist, year, week, note, group } = rr[0];
-        picks.push({ title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}) });
+        const { title, artist, year, week, note, group, genre } = rr[0];
+        picks.push({ title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {}) });
       } else {
-        picks.push(rr.map(({ title, artist, year, week, note, group }) => ({
-          title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {})
+        picks.push(rr.map(({ title, artist, year, week, note, group, genre }) => ({
+          title, artist, year, week, ...(note ? { note } : {}), ...(group !== '' ? { group } : {}), ...(genre ? { genre } : {})
         })));
       }
     }
@@ -914,6 +906,7 @@ function render(COLLECTION) {
       <th class="sortable" data-col="person">Person</th>
       <th class="sortable" data-col="artist">Artist</th>
       <th class="sortable" data-col="album">Album</th>
+      <th class="sortable" data-col="genre">Genre</th>
       <th class="sortable" data-col="year">Year</th>
     </tr></thead>
     <tbody id="table-body"></tbody>
@@ -941,6 +934,7 @@ function render(COLLECTION) {
       case 'person': return row.person.toLowerCase();
       case 'artist': return row.pick.artist.toLowerCase();
       case 'album':  return row.pick.title.toLowerCase();
+      case 'genre':  return (row.pick.genre || '').toLowerCase();
       case 'year':   return row.pick?.year ?? 0;
       default:       return '';
     }
@@ -970,6 +964,7 @@ function render(COLLECTION) {
       personTd,
       Object.assign(document.createElement('td'), { className: 'td-artist', textContent: pick.artist }),
       Object.assign(document.createElement('td'), { className: 'td-album',  textContent: pick.title }),
+      Object.assign(document.createElement('td'), { className: 'td-genre',  textContent: pick.genre || '—' }),
       Object.assign(document.createElement('td'), { className: 'td-year',   textContent: pick.year ?? '—' }),
     ].forEach(td => tr.appendChild(td));
 
@@ -1018,22 +1013,27 @@ function render(COLLECTION) {
   renderTable();
 
   // ── STATS ────────────────────────────────────────────────────
-  const allPicks = allRows.map(r => r.pick);
+  const allPicks   = allRows.map(r => r.pick);
   const soloCount  = allPicks.filter(p => p.group === '0').length;
   const groupCount = allPicks.filter(p => p.group === '1').length;
 
+  const genreCounts = {};
+  allPicks.forEach(p => {
+    if (p.genre) genreCounts[p.genre] = (genreCounts[p.genre] || 0) + 1;
+  });
+  const topGenre = Object.entries(genreCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
+
   const statsSection = document.getElementById('stats-section');
   [
-    { label: 'Solo Artists', value: soloCount },
-    { label: 'Groups',       value: groupCount },
+    { label: 'Solo Artists',       value: soloCount  },
+    { label: 'Groups',             value: groupCount },
+    { label: 'Most Popular Genre', value: topGenre   },
   ].forEach(({ label, value }) => {
     const el = document.createElement('div');
     el.className = 'stat-item';
     el.innerHTML = `<strong>${value}</strong>${label}`;
     statsSection.appendChild(el);
   });
-  document.getElementById('header-meta').textContent =
-    `${people.length} people · ${roundCount} rounds · ${totalPicks} picks`;
 
   // ── COVER RESOLUTION ─────────────────────────────────────────
   // Featured album resolves first. Main queue starts only after it completes.
