@@ -1,3 +1,4 @@
+albums,,,,,,,,,,,,,,,
 round,week,person,artist,title,genre,year,Decade,Mins,Group,EDA,Origin,Gender,POC,double,note
 12,101,SF,Cyndi Lauper,She's So Unusual,Pop,1983,1980s,39,0,0,USA,F,0,0,
 12,100,MJ,The White Stripes,Elephant,Rock,2003,2000s,51,1,0,USA,MF,0,0,
@@ -26,7 +27,7 @@ round,week,person,artist,title,genre,year,Decade,Mins,Group,EDA,Origin,Gender,PO
 9,77,SF,Bowling for Soup,Let's Do It For Johnny,Pop Punk,2000,2000s,45,1,0,USA,M,0,0,
 9,76,MJ,Late of the Pier,Fantasy Black Channel,Rock,2008,2000s,43,1,0,GBR,M,0,0,
 9,75,RW,Maroon 5,Songs About Jane,Pop Rock,2002,2000s,46,1,0,USA,M,0,0,
-9,74,JP,Hundred Reasons,Ideas About Our Station,Rock,2002,2000s,39,1,0,GBR,M,0,0,
+9,74,JP,Hundred Reasons,Ideas Above Our Station,Rock,2002,2000s,39,1,0,GBR,M,0,0,
 9,73,TL,The Junior Varsity,Wide Eyed,Alternative,2005,2000s,41,1,0,USA,M,0,0,
 9,72,MT,The Twang,Love It When I Feel Like This,Indie Rock,2007,2000s,43,1,0,GBR,M,0,0,
 9,71,WS,La Dispute,Somewhere at the Bottom of the River Between Vega and Altair,Post-hardcore,2008,2000s,52,1,0,USA,M,1,0,
