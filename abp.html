@@ -483,7 +483,8 @@
     .stats-section {
       padding: 0 48px 48px;
       display: flex;
-      gap: 48px;
+      flex-wrap: wrap;
+      gap: 32px 48px;
     }
     .stat-item {
       font-family: 'DM Mono', monospace;
@@ -497,6 +498,38 @@
       line-height: 1;
       color: var(--accent);
       font-weight: 400;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 700px) {
+      header         { padding: 24px 16px 20px; }
+      main           { padding: 0 16px 40px; }
+      .featured      { padding: 0 16px 36px; }
+      .table-section { padding: 0 0 60px; }
+      .table-section h2 { padding-left: 16px; }
+      .stats-section { padding: 0 16px 40px; gap: 24px 32px; }
+
+      /* Scrollable table wrapper */
+      .table-section { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .picks-table   { font-size: 0.75rem; min-width: 480px; }
+
+      /* Smaller thumbnail */
+      .table-thumb,
+      .table-thumb-shimmer { width: 32px; height: 32px; }
+      .picks-table td:first-child { width: 40px; }
+
+      /* Hide lower-priority columns on small screens */
+      .picks-table .col-round,
+      .picks-table .col-genre,
+      .picks-table .col-year  { display: none; }
+
+      /* Stats wrap to 2 per row */
+      .stat-item { flex: 1 1 calc(50% - 16px); min-width: 120px; }
+      .stat-item strong { font-size: 1.6rem; }
+
+      /* Score chips smaller on mobile */
+      .score-row-inner.visible { gap: 6px 20px; }
+      .score-chip .chip-value  { font-size: 0.7rem; }
     }
 
     /* ── FOOTER ── */
@@ -986,12 +1019,12 @@ function render(COLLECTION, SCORES = new Map()) {
     <thead><tr>
       <th></th>
       <th class="sortable" data-col="week">Week</th>
-      <th class="sortable" data-col="round">Round</th>
+      <th class="sortable col-round" data-col="round">Round</th>
       <th class="sortable" data-col="person">Person</th>
       <th class="sortable" data-col="artist">Artist</th>
       <th class="sortable" data-col="album">Album</th>
-      <th class="sortable" data-col="genre">Genre</th>
-      <th class="sortable" data-col="year">Year</th>
+      <th class="sortable col-genre" data-col="genre">Genre</th>
+      <th class="sortable col-year" data-col="year">Year</th>
       <th class="sortable" data-col="avg">Avg</th>
       <th class="th-expand"></th>
     </tr></thead>
@@ -1067,14 +1100,14 @@ function render(COLLECTION, SCORES = new Map()) {
 
     [
       thumbTd,
-      Object.assign(document.createElement('td'), { className: 'td-week',   textContent: pick.week ?? '—' }),
-      Object.assign(document.createElement('td'), { className: 'td-round',  textContent: `R${round}` }),
+      Object.assign(document.createElement('td'), { className: 'td-week',              textContent: pick.week ?? '—' }),
+      Object.assign(document.createElement('td'), { className: 'td-round col-round',   textContent: `R${round}` }),
       personTd,
-      Object.assign(document.createElement('td'), { className: 'td-artist', textContent: pick.artist }),
-      Object.assign(document.createElement('td'), { className: 'td-album',  textContent: pick.title }),
-      Object.assign(document.createElement('td'), { className: 'td-genre',  textContent: pick.genre || '—' }),
-      Object.assign(document.createElement('td'), { className: 'td-year',   textContent: pick.year ?? '—' }),
-      Object.assign(document.createElement('td'), { className: 'td-avg',    textContent: avg ?? '—' }),
+      Object.assign(document.createElement('td'), { className: 'td-artist',            textContent: pick.artist }),
+      Object.assign(document.createElement('td'), { className: 'td-album',             textContent: pick.title }),
+      Object.assign(document.createElement('td'), { className: 'td-genre col-genre',   textContent: pick.genre || '—' }),
+      Object.assign(document.createElement('td'), { className: 'td-year col-year',     textContent: pick.year ?? '—' }),
+      Object.assign(document.createElement('td'), { className: 'td-avg',               textContent: avg ?? '—' }),
       expandTd,
     ].forEach(td => tr.appendChild(td));
 
