@@ -404,24 +404,9 @@
     }
 
     /* ── EXPANDABLE SCORE ROW ── */
-    .picks-table th.th-expand,
-    .picks-table td.td-expand {
-      width: 28px;
-      padding: 0 8px;
-      text-align: center;
-    }
-    .expand-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--muted);
-      font-size: 0.65rem;
-      padding: 2px 4px;
-      transition: color 0.15s, transform 0.2s;
-      line-height: 1;
-    }
-    .expand-btn:hover { color: var(--accent); }
-    .expand-btn.open  { transform: rotate(180deg); color: var(--accent); }
+    .picks-table tr.has-scores { cursor: pointer; }
+    .picks-table tr.has-scores:hover { background: var(--surface); }
+    .picks-table tr.row-expanded { background: var(--surface); }
 
     .score-row td {
       background: var(--surface);
@@ -1028,7 +1013,6 @@ function render(COLLECTION, SCORES = new Map()) {
       <th class="sortable col-genre" data-col="genre">Genre</th>
       <th class="sortable col-year" data-col="year">Year</th>
       <th class="sortable" data-col="avg">Avg</th>
-      <th class="th-expand"></th>
     </tr></thead>
     <tbody id="table-body"></tbody>
   `;
@@ -1089,17 +1073,6 @@ function render(COLLECTION, SCORES = new Map()) {
       avg = vals.length ? parseFloat((vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(2)) : null;
     }
 
-    // Chevron expand button
-    const expandTd = document.createElement('td');
-    expandTd.className = 'td-expand';
-    if (weekScores) {
-      const btn = document.createElement('button');
-      btn.className = 'expand-btn';
-      btn.setAttribute('aria-label', 'Show scores');
-      btn.textContent = '▾';
-      expandTd.appendChild(btn);
-    }
-
     [
       thumbTd,
       Object.assign(document.createElement('td'), { className: 'td-week',              textContent: pick.week ?? '—' }),
@@ -1110,18 +1083,18 @@ function render(COLLECTION, SCORES = new Map()) {
       Object.assign(document.createElement('td'), { className: 'td-genre col-genre',   textContent: pick.genre || '—' }),
       Object.assign(document.createElement('td'), { className: 'td-year col-year',     textContent: pick.year ?? '—' }),
       Object.assign(document.createElement('td'), { className: 'td-avg',               textContent: avg ?? '—' }),
-      expandTd,
     ].forEach(td => tr.appendChild(td));
 
     // ── Score expansion row ──
     const scoreTr = document.createElement('tr');
     scoreTr.className = 'score-row';
     const scoreTd = document.createElement('td');
-    scoreTd.colSpan = 10;
+    scoreTd.colSpan = 9;
     const scoreInner = document.createElement('div');
     scoreInner.className = 'score-row-inner';
 
     if (weekScores) {
+      tr.classList.add('has-scores');
       Object.entries(weekScores).forEach(([label, val]) => {
         const chip = document.createElement('div');
         chip.className = 'score-chip';
@@ -1133,11 +1106,9 @@ function render(COLLECTION, SCORES = new Map()) {
         scoreInner.appendChild(chip);
       });
 
-      const btn = expandTd.querySelector('.expand-btn');
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
+      tr.addEventListener('click', () => {
         const open = scoreInner.classList.toggle('visible');
-        btn.classList.toggle('open', open);
+        tr.classList.toggle('row-expanded', open);
       });
     }
 
