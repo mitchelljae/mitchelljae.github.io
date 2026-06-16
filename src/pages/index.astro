@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import LinkCard from '../components/LinkCard.astro';
+import linkData from '../data/links.json';
+import profilePic from '../assets/images/pfp.png';
+
+const mySocials = [
+  { platform: 'twitch', url: 'https://www.twitch.tv/mitchelljae' },
+  { platform: 'youtube', url: 'https://www.youtube.com/@mitchelljae' },
+  { platform: 'tiktok', url: 'https://www.tiktok.com/@mitchelljae' },
+  { platform: 'instagram', url: 'https://instagram.com/mitchelljaex' }
+];
+---
+
+<BaseLayout>
+  <Header 
+    avatar={profilePic}
+    name="Mitchell Jae" 
+    bio="Streamer, Comedian, Improviser, Liar"
+    socials={mySocials}
+  />
+
+  <div class="links-wrap">
+    <h2>My Links</h2>
+    {linkData.map((link) => (
+      <LinkCard url={link.url} title={link.title} icon={link.icon} />
+    ))}
+
+    <h2>Mailing List</h2>
+
+    <div class="card-content">
+      <a 
+        href="https://www.buttondown.com/mitchelljae"
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="link-card"
+      >
+        <div class="card-title">Subscribe to my Newsletter</div>
+      </a>
+    </div>
+
+  </div>
+</form>
+</BaseLayout>
+

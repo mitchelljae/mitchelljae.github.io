@@ -1,0 +1,50 @@
+---
+import { Image } from 'astro:assets';
+import SocialIcons from './SocialIcons.astro';
+
+const { avatar, name, bio, socials } = Astro.props;
+---
+
+<header class="header">
+  <div class="profile-backdrop">
+    <Image 
+      src={avatar} 
+      alt="" 
+      aria-hidden="true" 
+      loading="eager"
+    />
+  </div>
+
+  <div class="profile-content">
+    <div class="avatar-container">
+      <Image 
+        src={avatar} 
+        alt={`${name}'s profile pic - their sunglasses-wearing face in black and white`} 
+        class="avatar"
+        width={192}
+        height={192}
+        widths={[96, 192, 288]}
+        quality={100}
+        loading="eager"
+      />
+    </div>
+
+    <h1 class="name">{name}</h1>
+    <div class="bio">{bio}</div>
+
+  <div class="social-row">
+    {socials.map((social) => (
+      <a 
+        href={social.url} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="social-link"
+        aria-label={`Visit my ${social.platform}`}
+      >
+        <SocialIcons icon={social.platform} />
+      </a>
+    ))}
+  </div>
+
+  </div>
+</header>
