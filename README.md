@@ -1,1 +1,1 @@
-Shamelessly lifted from Glitch in Bio!
+My personal linktree-style website
